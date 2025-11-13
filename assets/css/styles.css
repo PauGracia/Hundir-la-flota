@@ -193,8 +193,10 @@ body {
 }
 
 .btn--secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-text-dark);
+  text-align: center;
+  text-decoration: none;
+  background-color: var(--color-primary);
+  color: var(--color-text);
 }
 
 .btn--secondary:hover {
@@ -303,7 +305,7 @@ body.menu {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-image: url("../img/imagenes/portadaMenu.gif");
+  background-image: url("../img/imagenes/portadaMenu1.gif");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -358,44 +360,28 @@ body.menu {
 .topbar__perfil {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-
-  /* Pequeño padding interno para separar foto y botón de los bordes */
-  padding: 0 0.2rem;
-
+  gap: 0.5rem;
   text-decoration: none;
+  color: #fff;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.topbar__perfil:hover {
+  transform: scale(1.05);
+  color: #00bfff;
 }
 
 .topbar__foto {
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  /*border: 2px solid #00bfff;*/
-  /* opcional: sombra suave */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.topbar__foto:hover {
-  transform: scale(1.1); /* un poco más de “zoom” al pasar el ratón */
-  box-shadow: 0 0 8px #00bfff;
+  border: 2px solid #00bfff;
 }
 
 .topbar__usuario {
-  background-color: #00bfff;
-  border: none;
-  color: #fff;
-  font-weight: bold;
-  font-size: 0.85rem; /* ligeramente más pequeño para equilibrar con la foto */
-  padding: 0.4rem 0.7rem; /* menos padding para no desbordar */
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.topbar__usuario:hover {
-  background-color: #0077cc;
+  font-family: "Russo One", sans-serif;
+  font-size: 1.1rem;
 }
 
 @media (max-width: 600px) {
@@ -448,12 +434,14 @@ body.menu {
 }
 
 .menu__btn#btnSalir {
-  border-color: #f44336;
-  background: rgba(244, 67, 54, 0.6);
+  border-color: #fff;
+  background: black;
 }
 
 .menu__btn#btnSalir:hover {
-  background: rgba(244, 67, 54, 0.8);
+  transform: scale(1.05);
+  background: rgba(4, 9, 75, 0.884);
+  border-color: var(--color-primario);
 }
 
 /* ===========================================
@@ -570,7 +558,108 @@ body.perfil {
 
 .perfil__titulo {
   font-family: "Russo One", sans-serif;
-  color: #00bfff;
-  text-shadow: 0 0 8px #00bfff, 0 0 20px #0077ff;
+  color: white;
   margin-bottom: 1rem;
+}
+
+.perfil__contenedor {
+  display: flex;
+  flex-direction: row; /* lado a lado */
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem;
+  color: #fff;
+  flex-wrap: nowrap; /* evita que se apilen antes de tiempo */
+}
+
+.perfil__info,
+.perfil__config {
+  background-color: rgba(0, 0, 0, 0.85);
+  border-radius: 1rem;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.5);
+  padding: 2rem;
+}
+
+.perfil__info {
+  flex: 1 1 45%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.perfil__config {
+  flex: 1 1 40%;
+  max-width: 400px;
+}
+
+.perfil__foto-grande {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #00bfff;
+  margin-bottom: 1rem;
+}
+
+.perfil__victorias {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  margin: 1rem 0;
+}
+
+.perfil__icono-trophy {
+  width: 30px;
+  height: 30px;
+}
+
+.perfil__almirantes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  max-height: 350px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.perfil__almirante {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.perfil__almirante img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  margin-right: 1rem;
+  object-fit: cover;
+}
+
+.perfil__almirante-info {
+  text-align: left;
+}
+
+.perfil__almirante-nombre {
+  font-weight: bold;
+  color: #00bfff;
+}
+
+/* Modo responsive: en pantallas pequeñas se apilan */
+@media (max-width: 900px) {
+  .perfil__contenedor {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .perfil__info,
+  .perfil__config {
+    max-width: 90%;
+    width: 100%;
+  }
 }

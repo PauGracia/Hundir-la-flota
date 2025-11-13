@@ -40,10 +40,10 @@ $usuario = $result->fetch_assoc();
       <div class="topbar__contenido">
         <h1 class="topbar__titulo">⚓ Hundir la Flota ⚓</h1>
         <a href="perfil.php" class="topbar__perfil">
-          <img class="topbar__foto" src="../assets/img/perfiles/<?php echo htmlspecialchars($usuario['imagenPerfil'] ?? 'default-avatar.jpg'); ?>" ...>
-
-          <button class="topbar__usuario"><?php echo htmlspecialchars($usuario['nombreUsuario']); ?></button>
+          <img class="topbar__foto" src="../assets/img/perfiles/<?php echo htmlspecialchars($usuario['imagenPerfil'] ?? 'default-avatar.jpg'); ?>" alt="Perfil">
+          <span class="topbar__usuario"><?php echo htmlspecialchars($usuario['nombreUsuario']); ?></span>
         </a>
+
       </div>
     </header>
 

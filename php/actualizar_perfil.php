@@ -4,6 +4,12 @@ session_start();
 // conexión (conexion.php está en el mismo directorio php/)
 require_once __DIR__ . '/conexion.php';
 
+function flash($mensaje, $tipo = 'info') {
+    $_SESSION['flash_mensaje'] = $mensaje;
+    $_SESSION['flash_tipo'] = $tipo;
+}
+
+
 if (!isset($_SESSION['usuario'])) {
     header('Location: ../index.php');
     exit;
@@ -11,8 +17,8 @@ if (!isset($_SESSION['usuario'])) {
 
 $nombreUsuarioAntiguo = $_SESSION['usuario'];
 $nuevoNombre = isset($_POST['nombreUsuario']) ? trim($_POST['nombreUsuario']) : $nombreUsuarioAntiguo;
-$nuevaPass = isset($_POST['pass']) ? trim($_POST['pass']) : '';
-$imagenPerfilRuta = "null"; // ruta relativa que guardaremos en la DB (ej: assets/img/perfiles/abc.jpg)
+$nuevaPass = isset($_POST['pass1']) ? trim($_POST['pass1']) : '';
+$imagenPerfilRuta = null; // ruta relativa que guardaremos en la DB (ej: assets/img/perfiles/abc.jpg)
 
 // --- Subida y validación de imagen ---
 if (!empty($_FILES['imagenPerfil']['name'])) {
@@ -27,22 +33,22 @@ if (!empty($_FILES['imagenPerfil']['name'])) {
 
     // chequeos
     if ($file['error'] !== UPLOAD_ERR_OK) {
-        $_SESSION['flash_error'] = 'Error al subir la imagen.';
-        $_SESSION['flash_tipo'] = 'error';
+        flash('Error al subir la imagen.', 'error');
+
         header('Location: ../juego/perfil.php'); 
         exit;
     }
 
     if ($file['size'] > $maxSize) {
-        $_SESSION['flash_error'] = 'La imagen es demasiado grande (máx 2MB).';
-        $_SESSION['flash_tipo'] = 'error';
+        flash('La imagen es demasiado grande (máx 2MB).','error');
+        
         header('Location: ../juego/perfil.php');
         exit;
     }
 
     if (!in_array($ext, $allowedExt)) {
-        $_SESSION['flash_error'] = 'Formato no permitido. Usa: jpg, jpeg, png, gif, webp.';
-        $_SESSION['flash_tipo'] = 'error';
+        flash('Formato no permitido. Usa: jpg, jpeg, png, gif, webp.', 'error');
+        
         header('Location: ../juego/perfil.php');
         exit;
     }
@@ -50,7 +56,7 @@ if (!empty($_FILES['imagenPerfil']['name'])) {
     // comprobar que es realmente una imagen
     $check = @getimagesize($tmpName);
     if ($check === false) {
-        $_SESSION['flash_error'] = 'El archivo no parece una imagen válida.';
+        flash('El archivo no parece una imagen válida.', 'error');
         $_SESSION['flash_tipo'] = 'error';
         header('Location: ../juego/perfil.php');
         exit;
@@ -67,7 +73,7 @@ if (!empty($_FILES['imagenPerfil']['name'])) {
     $targetPath = $targetDir . $nuevoNombreArchivo;
 
     if (!move_uploaded_file($tmpName, $targetPath)) {
-        $_SESSION['flash_error'] = 'No se pudo guardar la imagen en el servidor.';
+        flash('No se pudo guardar la imagen en el servidor.', 'error');
         $_SESSION['flash_tipo'] = 'error';
         header('Location: ../juego/perfil.php');
         exit;
@@ -111,11 +117,11 @@ try {
     // actualizar sesión con el nuevo nombre (si se cambió)
     $_SESSION['usuario'] = $nuevoNombre;
 
-    $_SESSION['flash_success'] = 'Perfil actualizado correctamente.';
-    $_SESSION['flash_tipo'] = 'success';
+    flash('Perfil actualizado correctamente.', 'success');
+    
 } catch (Exception $e) {
-    $_SESSION['flash_error'] = 'Error al actualizar el perfil.';
-    $_SESSION['flash_tipo'] = 'error';
+    flash('Error al actualizar el perfil.', 'error');
+    
 }
 
 // redirigir de nuevo al perfil
