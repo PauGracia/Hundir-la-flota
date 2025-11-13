@@ -15,6 +15,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($fila = $resultado->fetch_assoc()) {
         if (password_verify($password, $fila["pass"])) {
+            session_start();
+            $_SESSION["usuario"] = $usuario;
             echo json_encode(["success" => true, "message" => "Inicio de sesión correcto."]);
         } else {
             echo json_encode(["success" => false, "message" => "Contraseña incorrecta."]);

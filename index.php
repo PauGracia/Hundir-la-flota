@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hundir la Flota - Ingreso</title>
-
+    <link
+        href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap"
+        rel="stylesheet"
+      />
     <link
       rel="stylesheet"
       href="./assets/css/styles.css?v=<?php echo time(); ?>"
@@ -12,10 +15,15 @@
   </head>
 
   <body class="app app--login">
+    <!-- Titulo -->
+    <div class="game-title">
+      <h1 class="game-title__text">💥 Hundir la Flota 💥</h1>
+    </div>
+
     <main class="auth">
       <section class="auth__card">
         <header class="auth__header">
-          <h1 class="auth__title">⚓ Hundir la Flota ⚓</h1>
+          
           <p class="auth__subtitle">Inicia sesión para continuar</p>
         </header>
 
@@ -61,7 +69,8 @@
               id="nuevoUsuario"
               name="usuario"
               class="form__input"
-              required autocomplete="username"
+              required
+              autocomplete="username"
             />
           </div>
 
@@ -72,7 +81,8 @@
               id="nuevoPassword"
               name="password"
               class="form__input"
-              required autocomplete="current-password"
+              required
+              autocomplete="current-password"
             />
           </div>
 
@@ -101,7 +111,9 @@
       </section>
     </main>
 
-    <script src="assets/js/main.js"></script>
+    <!-- Notificaciones -->
+    <div id="mensaje" class="mensaje oculto"></div>
 
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

@@ -7,10 +7,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $usuario = trim($_POST["usuario"]);
     $password = $_POST["password"];
 
+    // Validaciones
+
     if (empty($usuario) || empty($password)) {
         echo json_encode(["success" => false, "message" => "Usuario o contraseña vacíos."]);
         exit;
     }
+
+    if (strlen($usuario) < 3 || strlen($usuario) > 15) {
+    echo json_encode(["success" => false, "message" => "El nombre de usuario debe tener entre 3 y 15 caracteres."]);
+    exit;
+    }
+
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $password)) {
+        echo json_encode(["success" => false, "message" => "La contraseña debe tener al menos 8 caracteres, con mayúscula, minúscula y número."]);
+        exit;
+    }
+
+    
+
 
     // Comprobamos si ya existe ese usuario
     $consulta = $conexion->prepare("SELECT id FROM USUARIO WHERE nombreUsuario = ?");
