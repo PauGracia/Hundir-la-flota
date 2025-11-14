@@ -110,21 +110,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Botón "Salir" en menú principal ---
   const btnSalir = document.getElementById("btnSalir");
+  const modalSalir = document.getElementById("modalSalir");
+  const confirmarSalir = document.getElementById("confirmarSalir");
+  const cancelarSalir = document.getElementById("cancelarSalir");
 
   if (btnSalir) {
-    console.log("✅ Botón Salir detectado");
-
     btnSalir.addEventListener("click", (e) => {
       e.preventDefault();
-      if (confirm("¿Seguro que deseas salir del juego y volver al inicio?")) {
-        mostrarMensaje("Saliendo del juego...", "info");
-        setTimeout(() => {
-          window.location.href = "../index.php";
-        }, 1000);
-      }
+      modalSalir.classList.remove("oculto");
     });
-  } else {
-    console.log("⚠️ No se encontró btnSalir (esta página no lo tiene)");
+  }
+
+  if (cancelarSalir) {
+    cancelarSalir.addEventListener("click", () => {
+      modalSalir.classList.add("oculto");
+    });
+  }
+
+  if (confirmarSalir) {
+    confirmarSalir.addEventListener("click", () => {
+      mostrarMensaje("Saliendo del juego...", "info");
+      setTimeout(() => {
+        window.location.href = "../index.php";
+      }, 1000);
+    });
   }
 
   // Validación de cambio de contraseña en perfil
@@ -152,6 +161,21 @@ document.addEventListener("DOMContentLoaded", () => {
           );
           return;
         }
+      }
+    });
+  }
+
+  // Para el Settings del menu principal
+  const sliderVolumen = document.getElementById("volumenMusica");
+
+  if (sliderVolumen) {
+    // Poner valor inicial
+    sliderVolumen.value = localStorage.getItem("volumenMusica") ?? 0.5;
+
+    sliderVolumen.addEventListener("input", () => {
+      const audioFrame = document.getElementById("audioFrame");
+      if (audioFrame && audioFrame.contentWindow.setVolumenMusica) {
+        audioFrame.contentWindow.setVolumenMusica(sliderVolumen.value);
       }
     });
   }

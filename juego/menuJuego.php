@@ -34,6 +34,12 @@ $usuario = $result->fetch_assoc();
   </head>
 
   <body class="menu">
+   <iframe 
+    id="audioFrame" 
+    src="/Hundir-la-flota/audioPlayerFrame.html" 
+    style="display:none">
+   </iframe>
+
     <!-- BARRA SUPERIOR -->
     <header class="topbar">
       <div class="topbar__fondo"></div>
@@ -53,11 +59,24 @@ $usuario = $result->fetch_assoc();
       <section class="menu__opciones">
         <a href="juego/juego.html" class="menu__btn">Hundir la Flota</a>
         <a href="#" class="menu__btn">Ranking</a>
-        <a href="#" class="menu__btn">Settings</a>
+        <a href="settings.php" class="menu__btn">Settings</a>
         <a href="#" class="menu__btn" id="btnSalir">Salir</a>
 
       </section>
     </main>
+    <!-- MODAL DE CONFIRMACIÓN -->
+    <div id="modalSalir" class="modal oculto">
+      <div class="modal__contenido">
+        <h2 class="modal__titulo">¿Salir del juego?</h2>
+        <p class="modal__texto">Se cerrará tu sesión y volverás al inicio.</p>
+
+        <div class="modal__botones">
+          <button id="confirmarSalir" class="modal__btn modal__btn--ok">Salir</button>
+          <button id="cancelarSalir" class="modal__btn modal__btn--cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
         <!-- FOOTER -->
     <footer class="bottombar">
       <div class="bottombar__fondo"></div>
@@ -65,6 +84,7 @@ $usuario = $result->fetch_assoc();
         <p class="bottombar__texto">© Pau Gracia López</p>
       </div>
     </footer>
+    
     <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
   </body>
 </html>

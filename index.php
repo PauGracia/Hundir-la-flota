@@ -15,9 +15,10 @@
   </head>
 
   <body class="app app--login">
+
     <!-- Titulo -->
     <div class="game-title">
-      <h1 class="game-title__text">💥 Hundir la Flota 💥</h1>
+      <h1 class="game-title__text"> Hundir la Flota </h1>
     </div>
 
     <main class="auth">
@@ -113,7 +114,7 @@
 
     <!-- Notificaciones -->
     <div id="mensaje" class="mensaje oculto"></div>
-
+    
     <script src="assets/js/main.js"></script>
   </body>
 </html>

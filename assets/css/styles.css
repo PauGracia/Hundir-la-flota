@@ -24,7 +24,7 @@ body {
   font-family: var(--font-main);
   color: var(--color-text);
   min-height: 100vh;
-  background-image: url("../img/imagenes/portada.jpg");
+  background-image: url("../img/imagenes/portada1.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -85,11 +85,15 @@ body {
 
 .game-title__text {
   font-family: "Russo One", sans-serif;
-  font-size: clamp(1.8rem, 5vw, 3.5rem);
-  color: #00bfff;
-  text-shadow: 0 0 8px #00bfff, 0 0 20px #0077ff;
+  font-size: clamp(1.8rem, 5vw, 5.5rem);
+  /*color: #00bfff;*/
+  color: #dbe2e8;
+  /*text-shadow: 0 0 8px #00bfff, 0 0 20px #0077ff;*/
+  text-shadow: 0 0 4px #dbe2e8, 0 0 10px #aab4bd, 0 0 18px #79828a,
+    0 0 28px #4e5459;
+
   letter-spacing: 2px;
-  margin: 0;
+  margin: 1rem;
   user-select: none;
   white-space: nowrap;
   transition: transform 0.3s ease, text-shadow 0.3s ease;
@@ -368,7 +372,7 @@ body.menu {
 
 .topbar__perfil:hover {
   transform: scale(1.05);
-  color: #00bfff;
+  color: #dbe2e8;
 }
 
 .topbar__foto {
@@ -376,7 +380,7 @@ body.menu {
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #00bfff;
+  border: 2px solid #dbe2e8;
 }
 
 .topbar__usuario {
@@ -435,13 +439,13 @@ body.menu {
 
 .menu__btn#btnSalir {
   border-color: #fff;
-  background: black;
+  background: var(--color-primario);
 }
 
 .menu__btn#btnSalir:hover {
   transform: scale(1.05);
   background: rgba(4, 9, 75, 0.884);
-  border-color: var(--color-primario);
+  border-color: var(--color-secundario);
 }
 
 /* ===========================================
@@ -494,6 +498,79 @@ body.menu {
   }
 }
 
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.oculto {
+  display: none;
+}
+
+.modal__contenido {
+  background: #0a1a2a;
+  padding: 25px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 0 15px #00bfff55;
+  border: 1px solid #0ff3;
+}
+
+.modal__titulo {
+  font-size: 1.6rem;
+  margin-bottom: 10px;
+  color: #cfe8ff;
+  text-shadow: 0 0 6px #9fb1c0, 0 0 12px #6c7c88;
+}
+
+.modal__texto {
+  color: #d0e0f8;
+  margin-bottom: 20px;
+}
+
+.modal__botones {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.modal__btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.modal__btn--ok {
+  background: #d9534f;
+  color: white;
+}
+
+.modal__btn--ok:hover {
+  background: #c9302c;
+}
+
+.modal__btn--cancel {
+  background: #5bc0de;
+  color: #002;
+}
+
+.modal__btn--cancel:hover {
+  background: #31b0d5;
+}
+
 /* ===========================================
    PERFIL DE USUARIO
 =========================================== */
@@ -525,7 +602,7 @@ body.perfil {
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #00bfff;
+  border: 3px solid #dbe2e8;
   margin-bottom: 1rem;
 }
 
@@ -597,7 +674,7 @@ body.perfil {
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #00bfff;
+  border: 4px solid #dbe2e8;
   margin-bottom: 1rem;
 }
 
@@ -647,7 +724,7 @@ body.perfil {
 
 .perfil__almirante-nombre {
   font-weight: bold;
-  color: #00bfff;
+  color: #dbe2e8;
 }
 
 /* Modo responsive: en pantallas pequeñas se apilan */
@@ -662,4 +739,99 @@ body.perfil {
     max-width: 90%;
     width: 100%;
   }
+}
+
+/* ======== SETTINGS ======== */
+
+body.settings {
+  background-image: url("../img/imagenes/fondoPerfil.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: "Russo One", sans-serif;
+  color: #fff;
+}
+
+.settings__card {
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.5);
+}
+
+.settings__titulo {
+  font-size: 1.8rem;
+  color: #dbe2e8;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 6px #9fb1c0, 0 0 12px #6c7c88;
+}
+
+/* Slider */
+.settings__slider-container {
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.settings__label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #cfe8ff;
+}
+
+#volumenMusica {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.25);
+  outline: none;
+}
+
+/* Barrita del slider */
+#volumenMusica::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: #00bfff;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px #00bfff;
+}
+
+#volumenMusica::-moz-range-thumb {
+  background: #00bfff;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px #00bfff;
+}
+
+/* Botón volver */
+.settings__btn-volver {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  background: #5bc0de;
+  color: #002;
+  font-weight: bold;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.settings__btn-volver:hover {
+  background: #31b0d5;
 }

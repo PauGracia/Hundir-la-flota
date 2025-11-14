@@ -47,6 +47,7 @@ $almirantesStats = $statsResult->fetch_all(MYSQLI_ASSOC);
 </head>
 
 <body class="perfil">
+
   <main class="perfil__contenedor">
     <!-- Columna izquierda: información -->
     <section class="perfil__info">
@@ -103,7 +104,7 @@ $almirantesStats = $statsResult->fetch_all(MYSQLI_ASSOC);
 
   <!-- Mensaje flash -->
   <div id="mensaje" class="mensaje oculto"></div>
-
+  
   <!-- Primero cargamos main.js, donde está definida mostrarMensaje -->
   <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
 

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <script>
+      document.addEventListener("click", () => {
+        if (window.audioPlayer) audioPlayer.play().catch(() => {});
+      });
+    </script>
+
+    <script src="/Hundir-la-flota/assets/js/audioManager.js"></script>
+  </body>
+</html>
