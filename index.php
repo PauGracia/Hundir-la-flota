@@ -13,6 +13,9 @@
       href="./assets/css/styles.css?v=<?php echo time(); ?>"
     />
   </head>
+  <audio id="sonidoHover" src="assets/sounds/hover.mp3" preload="auto"></audio>
+  <audio id="sonidoClick" src="assets/sounds/click.mp3" preload="auto"></audio>
+
 
   <body class="app app--login">
 

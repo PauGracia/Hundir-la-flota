@@ -26,19 +26,23 @@ $usuario = $result->fetch_assoc();
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Menú Principal - Hundir la Flota</title>
 
-    <!-- Fuente Google bonita estilo naval -->
+    <!-- Fuente Google estilo naval -->
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="../assets/css/styles.css?v=<?php echo time(); ?>" />
    
   </head>
+  <audio id="sonidoHover" src="../assets/sounds/hover.mp3" preload="auto"></audio>
+  <audio id="sonidoClick" src="../assets/sounds/click.mp3" preload="auto"></audio>
+
 
   <body class="menu">
-   <iframe 
+    <!-- Para que suene la musica -->
+   <!--<iframe 
     id="audioFrame" 
     src="/Hundir-la-flota/audioPlayerFrame.html" 
     style="display:none">
-   </iframe>
+   </iframe>-->
 
     <!-- BARRA SUPERIOR -->
     <header class="topbar">

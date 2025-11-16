@@ -45,6 +45,8 @@ $almirantesStats = $statsResult->fetch_all(MYSQLI_ASSOC);
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/styles.css?v=<?php echo time(); ?>">
 </head>
+<audio id="sonidoHover" src="../assets/sounds/hover.mp3" preload="auto"></audio>
+  <audio id="sonidoClick" src="../assets/sounds/click.mp3" preload="auto"></audio>
 
 <body class="perfil">
 

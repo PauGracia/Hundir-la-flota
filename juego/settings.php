@@ -15,6 +15,11 @@
             <label class="settings__label">Volumen de la música</label>
             <input type="range" id="volumenMusica" min="0" max="1" step="0.01">
         </div>
+        <div class="settings__slider-container">
+            <label class="settings__label">Volumen de efectos</label>
+            <input type="range" id="volumenEfectos" min="0" max="1" step="0.01">
+        </div>
+
 
         <a href="menuJuego.php" class="settings__btn-volver">Volver al menú</a>
     </div>
