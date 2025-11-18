@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pantalla de organización del juego</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="../assets/css/styles.css?v=<?php echo time(); ?>"
+    />
+  </head>
+
+  <body class="body-inicio-juego">
+    <div class="top-buttons">
+      <a href="menuJuego.php" class="btn-menu">⟵ Volver al menú</a>
+      <a href="batalla.php" class="btn-batalla" id="btn-batalla"
+        >Comenzar batalla ▶</a
+      >
+    </div>
+
+    <div class="setup-container">
+      <!-- PANEL IZQUIERDO -->
+      <div class="fleet-panel">
+        <h2 class="fleet-title">Coloca tus Barcos</h2>
+
+        <div class="fleet-grid">
+          <button
+            class="ship-btn vertical"
+            data-ship="portaviones"
+            data-size="5"
+          >
+            <!-- IMAGEN VERTICAL para vertical -->
+            <img
+              src="../assets/img/imagenes/portaaviones.png"
+              class="ship-img vertical-img"
+            />
+            <!-- IMAGEN HORIZONTAL para horizontal -->
+            <img
+              src="../assets/img/imagenes/rotated_portaaviones.png"
+              class="ship-img horizontal-img"
+              style="display: none"
+            />
+            <span class="rotate-btn">⟳</span>
+          </button>
+
+          <button class="ship-btn vertical" data-ship="acorazado" data-size="5">
+            <img
+              src="../assets/img/imagenes/acorazado.png"
+              class="ship-img vertical-img"
+            />
+            <img
+              src="../assets/img/imagenes/rotated_acorazado.png"
+              class="ship-img horizontal-img"
+              style="display: none"
+            />
+            <span class="rotate-btn">⟳</span>
+          </button>
+
+          <button
+            class="ship-btn vertical"
+            data-ship="destructor"
+            data-size="4"
+          >
+            <img
+              src="../assets/img/imagenes/destructor.png"
+              class="ship-img vertical-img"
+            />
+            <img
+              src="../assets/img/imagenes/rotated_destructor.png"
+              class="ship-img horizontal-img"
+              style="display: none"
+            />
+            <span class="rotate-btn">⟳</span>
+          </button>
+
+          <button class="ship-btn vertical" data-ship="fragata" data-size="3">
+            <img
+              src="../assets/img/imagenes/fragata.png"
+              class="ship-img vertical-img"
+            />
+            <img
+              src="../assets/img/imagenes/rotated_fragata.png"
+              class="ship-img horizontal-img"
+              style="display: none"
+            />
+            <span class="rotate-btn">⟳</span>
+          </button>
+
+          <button class="ship-btn vertical" data-ship="corbeta1" data-size="2">
+            <img
+              src="../assets/img/imagenes/corbeta.png"
+              class="ship-img vertical-img"
+            />
+            <img
+              src="../assets/img/imagenes/rotated_corbeta.png"
+              class="ship-img horizontal-img"
+              style="display: none"
+            />
+            <span class="rotate-btn">⟳</span>
+          </button>
+
+          <button class="ship-btn vertical" data-ship="corbeta2" data-size="2">
+            <img
+              src="../assets/img/imagenes/corbeta.png"
+              class="ship-img vertical-img"
+            />
+            <img
+              src="../assets/img/imagenes/rotated_corbeta.png"
+              class="ship-img horizontal-img"
+              style="display: none"
+            />
+            <span class="rotate-btn">⟳</span>
+          </button>
+        </div>
+
+        <div class="help">
+          Selecciona un barco → Gíralo si quieres → Haz click en el tablero
+        </div>
+      </div>
+
+      <!-- TABLERO -->
+      <div class="board-container">
+        <div class="board-wrapper">
+          <div class="labels-top" id="labels-top"></div>
+
+          <div class="board-content">
+            <div class="labels-left" id="labels-left"></div>
+
+            <div class="board-with-ships">
+              <div id="board" class="board-grid"></div>
+              <div id="ships-layer" class="ships-layer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
+  </body>
+</html>

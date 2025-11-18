@@ -1,246 +1,3 @@
-/*document.addEventListener("DOMContentLoaded", () => {
-
-  
-  // --- Alternar entre login y registro ---
-  const toggleLink = document.getElementById("toggleLink");
-  const toggleText = document.getElementById("toggleText");
-  const loginForm = document.getElementById("loginForm");
-  const registerForm = document.getElementById("registerForm");
-
-  if (toggleLink) {
-    toggleLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      const isRegistering = registerForm.classList.contains("hidden");
-      if (isRegistering) {
-        loginForm.classList.add("hidden");
-        registerForm.classList.remove("hidden");
-        toggleText.innerHTML =
-          '¿Ya tienes cuenta? <a href="#" id="toggleLink" class="auth__link">Inicia sesión</a>';
-      } else {
-        loginForm.classList.remove("hidden");
-        registerForm.classList.add("hidden");
-        toggleText.innerHTML =
-          '¿No eres usuario? <a href="#" id="toggleLink" class="auth__link">Crea tu cuenta</a>';
-      }
-
-      // reactivar evento en el nuevo enlace
-      document.getElementById("toggleLink").addEventListener("click", (ev) => {
-        ev.preventDefault();
-        toggleLink.click();
-      });
-    });
-  }
-
-  // --- Login ---
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const datos = new FormData(loginForm);
-      const respuesta = await fetch("php/login.php", {
-        method: "POST",
-        body: datos,
-      });
-
-      const resultado = await respuesta.json();
-
-      if (resultado.success) {
-        mostrarMensaje("Inicio de sesión correcto.", "success");
-        setTimeout(() => {
-          window.location.href =
-            "http://localhost/Hundir-la-flota/juego/menuJuego.php";
-        }, 1500);
-      } else {
-        mostrarMensaje(resultado.message, "error");
-      }
-    });
-  }
-
-  // --- Registro ---
-  if (registerForm) {
-    registerForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const pass1 = document.getElementById("nuevoPassword").value;
-      const pass2 = document.getElementById("rePassword").value;
-      const usuario = document.getElementById("nuevoUsuario").value.trim();
-
-      // Validación básica
-      if (usuario.length < 3 || usuario.length > 15) {
-        mostrarMensaje(
-          "El nombre de usuario debe tener entre 3 y 15 caracteres.",
-          "error"
-        );
-        return;
-      }
-
-      // Validación contraseña fuerte (mínimo 8, mayúscula, minúscula, número)
-      const regexPass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-      if (!regexPass.test(pass1)) {
-        mostrarMensaje(
-          "La contraseña debe tener al menos 8 caracteres, incluir mayúscula, minúscula y número.",
-          "error"
-        );
-        return;
-      }
-
-      if (pass1 !== pass2) {
-        mostrarMensaje("Las contraseñas no coinciden.", "error");
-        return;
-      }
-
-      const datos = new FormData(registerForm);
-      const respuesta = await fetch("php/registrar.php", {
-        method: "POST",
-        body: datos,
-      });
-
-      const resultado = await respuesta.json();
-
-      if (resultado.success) {
-        mostrarMensaje(resultado.message, "success");
-        // Espera 1.5 segundos y vuelve al login
-        setTimeout(() => {
-          loginForm.classList.remove("hidden");
-          registerForm.classList.add("hidden");
-        }, 1500);
-      } else {
-        mostrarMensaje(resultado.message, "error");
-      }
-    });
-  }
-
-  // --- Botón "Salir" en menú principal ---
-  const btnSalir = document.getElementById("btnSalir");
-  const modalSalir = document.getElementById("modalSalir");
-  const confirmarSalir = document.getElementById("confirmarSalir");
-  const cancelarSalir = document.getElementById("cancelarSalir");
-
-  if (btnSalir) {
-    btnSalir.addEventListener("click", (e) => {
-      e.preventDefault();
-      modalSalir.classList.remove("oculto");
-    });
-  }
-
-  if (cancelarSalir) {
-    cancelarSalir.addEventListener("click", () => {
-      modalSalir.classList.add("oculto");
-    });
-  }
-
-  if (confirmarSalir) {
-    confirmarSalir.addEventListener("click", () => {
-      mostrarMensaje("Saliendo del juego...", "info");
-      setTimeout(() => {
-        window.location.href = "../index.php";
-      }, 1000);
-    });
-  }
-
-  // Validación de cambio de contraseña en perfil
-  const perfilForm = document.querySelector(".perfil__form");
-  if (perfilForm) {
-    perfilForm.addEventListener("submit", (e) => {
-      const pass1 = document.getElementById("pass1").value.trim();
-      const pass2 = document.getElementById("pass2").value.trim();
-
-      // Solo validamos si se ha escrito algo
-      if (pass1 !== "" || pass2 !== "") {
-        if (pass1 !== pass2) {
-          e.preventDefault();
-          mostrarMensaje("Las contraseñas no coinciden.", "error");
-          return;
-        }
-
-        // Opcional: validar fuerza de contraseña
-        const regexPass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-        if (!regexPass.test(pass1)) {
-          e.preventDefault();
-          mostrarMensaje(
-            "La contraseña debe tener al menos 8 caracteres, incluir mayúscula, minúscula y número.",
-            "error"
-          );
-          return;
-        }
-      }
-    });
-  }
-
-  // --- Sonidos del menú ---
-  const sonidoHover = document.getElementById("sonidoHover");
-  const sonidoClick = document.getElementById("sonidoClick");
-
-  // Seleccionar botones del menú
-  const botonesMenu = document.querySelectorAll(".menu__btn");
-
-  botonesMenu.forEach((btn) => {
-    // Sonido al pasar por encima
-    btn.addEventListener("mouseover", () => {
-      if (sonidoHover) {
-        sonidoHover.currentTime = 0;
-        sonidoHover.play();
-      }
-    });
-
-    // Sonido al hacer clic
-    btn.addEventListener("click", () => {
-      if (sonidoClick) {
-        sonidoClick.currentTime = 0;
-        sonidoClick.play();
-      }
-    });
-  });
-
-  // ---- SETTINGS: Control de volumen de música y efectos ----
-  const sliderVolumen = document.getElementById("volumenMusica");
-
-  if (sliderVolumen) {
-    // Cargar valor guardado (o 0.5 por defecto)
-    let vol = parseFloat(localStorage.getItem("volumenMusica")) || 0.5;
-    sliderVolumen.value = vol;
-
-    // Aplicar volumen a la música del IFRAME
-    const audioFrame = document.getElementById("audioFrame");
-    if (audioFrame && audioFrame.contentWindow.setVolumenMusica) {
-      audioFrame.contentWindow.setVolumenMusica(vol);
-    }
-
-    // Guardar volumen y aplicarlo a efectos
-    sliderVolumen.addEventListener("input", () => {
-      const newVol = parseFloat(sliderVolumen.value);
-
-      // Guardar en localStorage
-      localStorage.setItem("volumenMusica", newVol);
-
-      // Música del iframe
-      if (audioFrame && audioFrame.contentWindow.setVolumenMusica) {
-        audioFrame.contentWindow.setVolumenMusica(newVol);
-      }
-
-      // Efectos del menú
-      if (window.actualizarVolumenEfectos) {
-        window.actualizarVolumenEfectos(newVol);
-      }
-    });
-  }
-});
-
-// --- Sistema de mensajes ---
-function mostrarMensaje(texto, tipo = "info") {
-  const mensaje = document.getElementById("mensaje");
-  if (!mensaje) return;
-
-  mensaje.innerHTML = texto;
-  mensaje.className = `mensaje ${tipo} visible`;
-
-  clearTimeout(mensaje._timeout);
-  mensaje._timeout = setTimeout(() => {
-    mensaje.classList.remove("visible");
-    mensaje.classList.add("oculto");
-  }, 2500);
-}*/
-
 document.addEventListener("DOMContentLoaded", () => {
   const sonidoHover = document.getElementById("sonidoHover");
   const sonidoClick = document.getElementById("sonidoClick");
@@ -585,3 +342,278 @@ function mostrarMensaje(texto, tipo = "info") {
     mensaje.classList.add("oculto");
   }, 2500);
 }
+
+//****Logica colocación de barcos***** */
+(function () {
+  const board = document.getElementById("board");
+  const labelsTop = document.getElementById("labels-top");
+  const labelsLeft = document.getElementById("labels-left");
+  const letters = "ABCDEFGHIJ";
+  const shipsPlaced = [];
+
+  let selectedShip = null;
+
+  // Generar labels
+  for (let i = 0; i < 10; i++) {
+    const label = document.createElement("div");
+    label.textContent = letters[i];
+    labelsTop.appendChild(label);
+  }
+
+  for (let i = 1; i <= 10; i++) {
+    const label = document.createElement("div");
+    label.textContent = i;
+    labelsLeft.appendChild(label);
+  }
+
+  // Generar tablero
+  for (let row = 1; row <= 10; row++) {
+    for (let col = 0; col < 10; col++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.dataset.col = letters[col];
+      cell.dataset.row = row;
+
+      cell.addEventListener("click", () => {
+        if (selectedShip) {
+          placeShip(selectedShip, cell.dataset.col, parseInt(cell.dataset.row));
+        }
+      });
+
+      board.appendChild(cell);
+    }
+  }
+
+  // Selección de barcos
+  const shipButtons = document.querySelectorAll(".ship-btn");
+
+  shipButtons.forEach((button) => {
+    // Botón rotar
+    button.querySelector(".rotate-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isVertical = button.classList.contains("vertical");
+
+      if (isVertical) {
+        button.classList.remove("vertical");
+        button.classList.add("horizontal");
+      } else {
+        button.classList.remove("horizontal");
+        button.classList.add("vertical");
+      }
+    });
+
+    // Seleccionar barco
+    button.addEventListener("click", (e) => {
+      if (e.target.classList.contains("rotate-btn")) return;
+
+      shipButtons.forEach((btn) => btn.classList.remove("selected"));
+      button.classList.add("selected");
+
+      const isVertical = button.classList.contains("vertical");
+
+      selectedShip = {
+        ship: button.dataset.ship,
+        size: parseInt(button.dataset.size),
+        vertical: isVertical,
+        src: isVertical
+          ? button.querySelector(".vertical-img").src
+          : button.querySelector(".horizontal-img").src,
+      };
+    });
+  });
+
+  function placeShip(shipInfo, col, row) {
+    const size = shipInfo.size;
+    const isVertical = shipInfo.vertical;
+    const startColIndex = letters.indexOf(col);
+
+    // 1. VERIFICAR QUE EL BARCO NO ESTÉ YA COLOCADO
+    if (shipsPlaced.some((placedShip) => placedShip.ship === shipInfo.ship)) {
+      alert("Este barco ya ha sido colocado");
+      return;
+    }
+
+    // 2. VERIFICAR LÍMITES DEL TABLERO
+    if (shipInfo.ship === "portaviones") {
+      if (isVertical) {
+        if (startColIndex + 1 > 10 || row + 4 > 10) {
+          alert("No cabe verticalmente");
+          return;
+        }
+      } else {
+        if (startColIndex + 5 > 10 || row + 1 > 10) {
+          alert("No cabe horizontalmente");
+          return;
+        }
+      }
+    } else {
+      if (isVertical) {
+        if (row + size - 1 > 10) {
+          alert("No cabe verticalmente");
+          return;
+        }
+      } else {
+        if (startColIndex + size > 10) {
+          alert("No cabe horizontalmente");
+          return;
+        }
+      }
+    }
+
+    // 3. OBTENER TODAS LAS CELDAS QUE OCUPARÁ EL BARCO Y SUS ALREDEDORES
+    const cellsToCheck = [];
+    const cellsToOccupy = [];
+
+    if (shipInfo.ship === "portaviones") {
+      for (let i = 0; i < 10; i++) {
+        let checkCol, checkRow;
+
+        if (isVertical) {
+          checkCol = letters[startColIndex + Math.floor(i / 5)];
+          checkRow = row + (i % 5);
+        } else {
+          checkCol = letters[startColIndex + (i % 5)];
+          checkRow = row + Math.floor(i / 5);
+        }
+
+        cellsToOccupy.push({ col: checkCol, row: checkRow });
+
+        // Añadir celdas adyacentes (alrededor del barco)
+        for (let adjRow = checkRow - 1; adjRow <= checkRow + 1; adjRow++) {
+          for (
+            let adjColIndex = letters.indexOf(checkCol) - 1;
+            adjColIndex <= letters.indexOf(checkCol) + 1;
+            adjColIndex++
+          ) {
+            if (
+              adjRow >= 1 &&
+              adjRow <= 10 &&
+              adjColIndex >= 0 &&
+              adjColIndex < 10
+            ) {
+              const adjCol = letters[adjColIndex];
+              cellsToCheck.push({ col: adjCol, row: adjRow });
+            }
+          }
+        }
+      }
+    } else {
+      for (let i = 0; i < size; i++) {
+        const checkCol = isVertical ? col : letters[startColIndex + i];
+        const checkRow = isVertical ? row + i : row;
+
+        cellsToOccupy.push({ col: checkCol, row: checkRow });
+
+        // Añadir celdas adyacentes (alrededor del barco)
+        for (let adjRow = checkRow - 1; adjRow <= checkRow + 1; adjRow++) {
+          for (
+            let adjColIndex = letters.indexOf(checkCol) - 1;
+            adjColIndex <= letters.indexOf(checkCol) + 1;
+            adjColIndex++
+          ) {
+            if (
+              adjRow >= 1 &&
+              adjRow <= 10 &&
+              adjColIndex >= 0 &&
+              adjColIndex < 10
+            ) {
+              const adjCol = letters[adjColIndex];
+              cellsToCheck.push({ col: adjCol, row: adjRow });
+            }
+          }
+        }
+      }
+    }
+
+    // Eliminar duplicados de las celdas a verificar
+    const uniqueCellsToCheck = Array.from(
+      new Set(cellsToCheck.map((cell) => `${cell.col}${cell.row}`))
+    ).map((str) => ({ col: str[0], row: parseInt(str.slice(1)) }));
+
+    // 4. VERIFICAR SOLAPAMIENTO Y PROXIMIDAD
+    for (const cellPos of uniqueCellsToCheck) {
+      const cell = document.querySelector(
+        `.cell[data-col="${cellPos.col}"][data-row="${cellPos.row}"]`
+      );
+      if (cell && cell.dataset.occupied) {
+        alert(
+          "No puedes colocar barcos tan cerca de otros barcos. Debe haber al menos una casilla de separación."
+        );
+        return;
+      }
+    }
+
+    // 5. MARCAR CELDAS COMO OCUPADAS (solo las del barco, no las adyacentes)
+    cellsToOccupy.forEach((cellPos) => {
+      const cell = document.querySelector(
+        `.cell[data-col="${cellPos.col}"][data-row="${cellPos.row}"]`
+      );
+      if (cell) {
+        cell.dataset.occupied = shipInfo.ship;
+      }
+    });
+
+    // 6. CREAR Y POSICIONAR BARCO VISUAL
+    const shipDiv = document.createElement("div");
+    shipDiv.classList.add("placed-ship");
+    shipDiv.classList.add(isVertical ? "vertical" : "horizontal");
+
+    const cellSize = 48;
+    const gap = 4;
+
+    let width, height;
+
+    if (shipInfo.ship === "portaviones") {
+      if (isVertical) {
+        width = 2 * (cellSize + gap) - gap;
+        height = 5 * (cellSize + gap) - gap;
+      } else {
+        width = 5 * (cellSize + gap) - gap;
+        height = 2 * (cellSize + gap) - gap;
+      }
+    } else {
+      width = isVertical ? cellSize : size * (cellSize + gap) - gap;
+      height = isVertical ? size * (cellSize + gap) - gap : cellSize;
+    }
+
+    shipDiv.style.width = width + "px";
+    shipDiv.style.height = height + "px";
+    shipDiv.style.left = startColIndex * (cellSize + gap) + "px";
+    shipDiv.style.top = (row - 1) * (cellSize + gap) + "px";
+
+    // Añadir imagen
+    const shipImg = document.createElement("img");
+    shipImg.src = shipInfo.src;
+    shipDiv.appendChild(shipImg);
+
+    document.getElementById("ships-layer").appendChild(shipDiv);
+
+    // 7. ELIMINAR BARCO DEL PANEL
+    const shipButton = document.querySelector(
+      `.ship-btn[data-ship="${shipInfo.ship}"]`
+    );
+    if (shipButton) {
+      shipButton.remove();
+    }
+
+    // 8. DESELECCIONAR
+    selectedShip = null;
+
+    // 9. GUARDAR POSICIÓN
+    shipsPlaced.push({
+      ship: shipInfo.ship,
+      col: col,
+      row: row,
+      vertical: isVertical,
+      size: size,
+    });
+
+    console.log("Barcos colocados:", shipsPlaced);
+
+    // 10. VERIFICAR SI TODOS LOS BARCOS ESTÁN COLOCADOS
+    if (shipsPlaced.length === 6) {
+      document.getElementById("btn-batalla").style.background = "#4CAF50";
+      alert("¡Todos los barcos colocados! Puedes comenzar la batalla.");
+    }
+  }
+})();

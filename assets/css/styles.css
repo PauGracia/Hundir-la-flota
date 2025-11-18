@@ -97,6 +97,16 @@ body {
   user-select: none;
   white-space: nowrap;
   transition: transform 0.3s ease, text-shadow 0.3s ease;
+  animation: glow 3.5s infinite ease-in-out alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 12px #4e5459;
+  }
+  to {
+    text-shadow: 0 0 24px #dbe2e8;
+  }
 }
 
 /* Responsividad */
@@ -316,6 +326,18 @@ body.menu {
   overflow: hidden;
 }
 
+body.menu::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 20, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: -1;
+}
+
 /* ===========================================
    BARRA SUPERIOR
 =========================================== */
@@ -431,21 +453,24 @@ body.menu {
   transition: transform 0.2s ease, background 0.3s ease;
 }
 
-.menu__btn:hover {
+/*.menu__btn:hover {
   transform: scale(1.05);
   background: rgba(33, 150, 243, 0.6);
   border-color: var(--color-primario);
+}*/
+
+.menu__btn:hover {
+  box-shadow: 0 0 10px #2196f3, 0 0 20px #2196f3 inset;
 }
 
 .menu__btn#btnSalir {
-  border-color: #fff;
-  background: var(--color-primario);
+  color: rgba(0, 0, 0, 0.6);
+  border-color: rgba(0, 0, 0, 0.6);
+  background: #fff;
 }
 
 .menu__btn#btnSalir:hover {
-  transform: scale(1.05);
-  background: rgba(4, 9, 75, 0.884);
-  border-color: var(--color-secundario);
+  box-shadow: 0 0 10px #2196f3, 0 0 20px #2196f3 inset;
 }
 
 /* ===========================================
@@ -834,4 +859,234 @@ body.settings {
 
 .settings__btn-volver:hover {
   background: #31b0d5;
+}
+
+/*********Pantalla inicial Juego**********/
+
+:root {
+  --cell-size: 48px;
+  --gap: 4px;
+}
+
+/* GENERAL */
+.body-inicio-juego {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #071426;
+  color: #dbe2e8;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.setup-container {
+  display: flex;
+  width: calc(var(--cell-size) * 15);
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+/* BOTONES SUPERIORES */
+.top-buttons {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.btn-menu,
+.btn-batalla {
+  padding: 10px 16px;
+  background: #0a5ea5;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-menu:hover,
+.btn-batalla:hover {
+  background: #1578d1;
+}
+
+/* PANEL IZQUIERDO */
+.fleet-panel {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fleet-title {
+  font-family: "Russo One", sans-serif;
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.fleet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+/* BOTONES DE BARCO */
+.ship-btn {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid transparent;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* Asegurar que tenga tamaño suficiente */
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ship-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ship-btn.selected {
+  border-color: #2196f3;
+  background: rgba(33, 150, 243, 0.1);
+}
+
+.ship-img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+/* Mostrar la imagen correcta según orientación */
+.ship-btn.horizontal .horizontal-img {
+  display: block;
+}
+.ship-btn.horizontal .vertical-img {
+  display: none;
+}
+.ship-btn.vertical .horizontal-img {
+  display: none;
+}
+.ship-btn.vertical .vertical-img {
+  display: block;
+}
+
+/* Botón rotar */
+.rotate-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #2196f3;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* TABLERO */
+.board-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.labels-top {
+  display: grid;
+  grid-template-columns: repeat(10, var(--cell-size));
+  gap: var(--gap);
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  margin-left: 30px;
+}
+
+.board-content {
+  display: flex;
+  align-items: start;
+}
+
+.labels-left {
+  display: grid;
+  grid-template-rows: repeat(10, var(--cell-size));
+  gap: var(--gap);
+  width: 24px;
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  align-items: center;
+  margin-right: 6px;
+}
+
+/* TABLERO PRINCIPAL */
+.board-with-ships {
+  position: relative;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(10, var(--cell-size));
+  grid-template-rows: repeat(10, var(--cell-size));
+  gap: var(--gap);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+.cell:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* BARCOS COLOCADOS */
+/* BARCOS COLOCADOS - CON DEBUG */
+.placed-ship {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid red; /* DEBUG */
+  background: rgba(255, 0, 0, 0.1); /* DEBUG */
+}
+
+.placed-ship img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: 1px solid blue; /* DEBUG */
+}
+
+/* Para ver qué imagen se está usando */
+.placed-ship.horizontal {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.placed-ship.vertical {
+  background: rgba(255, 165, 0, 0.1);
 }

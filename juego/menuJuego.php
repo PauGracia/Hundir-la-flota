@@ -61,7 +61,7 @@ $usuario = $result->fetch_assoc();
     <!-- CONTENIDO PRINCIPAL -->
     <main class="menu__contenedor">
       <section class="menu__opciones">
-        <a href="juego/juego.html" class="menu__btn">Hundir la Flota</a>
+        <a href="inicioJuego.html" class="menu__btn">Hundir la Flota</a>
         <a href="#" class="menu__btn">Ranking</a>
         <a href="settings.php" class="menu__btn">Settings</a>
         <a href="#" class="menu__btn" id="btnSalir">Salir</a>
