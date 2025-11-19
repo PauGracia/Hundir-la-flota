@@ -16,17 +16,34 @@
   </head>
 
   <body class="body-inicio-juego">
-    <div class="top-buttons">
-      <a href="menuJuego.php" class="btn-menu">⟵ Volver al menú</a>
-      <a href="batalla.php" class="btn-batalla" id="btn-batalla"
-        >Comenzar batalla ▶</a
-      >
+    <!-- Panel superior -->
+    <div class="header-bar">
+      <!-- BOTÓN VOLVER -->
+      <a href="menuJuego.php" class="header-btn">Salir</a>
+
+      <!-- PANEL CAPITÁN -->
+      <div class="captain-panel">
+        <img src="../assets/img/imagenes/capitan.png" class="captain-img" />
+        <p class="captain-text">
+          ¡Almirante! Las tropas enemigas se acercan, disponga las naves para la
+          batalla.
+        </p>
+      </div>
+
+      <!-- PANEL ATACANTE -->
+      <div class="attacker-panel">
+        <img src="../assets/img/almirantes/nimitz.jpg" class="attacker-img" />
+        <p class="attacker-text">Atacante: Almirante Nimitz</p>
+      </div>
+
+      <!-- BOTÓN BATALLA -->
+      <a href="batalla.php" class="header-btn battle">Comenzar Batalla</a>
     </div>
 
     <div class="setup-container">
       <!-- PANEL IZQUIERDO -->
       <div class="fleet-panel">
-        <h2 class="fleet-title">Coloca tus Barcos</h2>
+        <h2 class="fleet-title">Flota</h2>
 
         <div class="fleet-grid">
           <button
@@ -139,6 +156,8 @@
         </div>
       </div>
     </div>
+    <!-- Sistema de mensajes -->
+    <div id="mensaje" class="mensaje"></div>
 
     <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
   </body>

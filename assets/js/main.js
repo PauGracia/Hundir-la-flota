@@ -393,12 +393,19 @@ function mostrarMensaje(texto, tipo = "info") {
       e.stopPropagation();
       const isVertical = button.classList.contains("vertical");
 
+      const verticalImg = button.querySelector(".vertical-img");
+      const horizontalImg = button.querySelector(".horizontal-img");
+
       if (isVertical) {
         button.classList.remove("vertical");
         button.classList.add("horizontal");
+        verticalImg.style.display = "none";
+        horizontalImg.style.display = "block";
       } else {
         button.classList.remove("horizontal");
         button.classList.add("vertical");
+        horizontalImg.style.display = "none";
+        verticalImg.style.display = "block";
       }
     });
 
@@ -427,40 +434,43 @@ function mostrarMensaje(texto, tipo = "info") {
     const isVertical = shipInfo.vertical;
     const startColIndex = letters.indexOf(col);
 
-    // 1. VERIFICAR QUE EL BARCO NO ESTÉ YA COLOCADO
+    // VERIFICAR QUE EL BARCO NO ESTÉ YA COLOCADO
     if (shipsPlaced.some((placedShip) => placedShip.ship === shipInfo.ship)) {
-      alert("Este barco ya ha sido colocado");
+      mostrarMensaje("Este barco ya ha sido colocado", "error");
+
       return;
     }
 
-    // 2. VERIFICAR LÍMITES DEL TABLERO
+    // VERIFICAR LÍMITES DEL TABLERO
     if (shipInfo.ship === "portaviones") {
       if (isVertical) {
         if (startColIndex + 1 > 10 || row + 4 > 10) {
-          alert("No cabe verticalmente");
+          mostrarMensaje("No cabe verticalmente", "error");
+
           return;
         }
       } else {
         if (startColIndex + 5 > 10 || row + 1 > 10) {
-          alert("No cabe horizontalmente");
+          mostrarMensaje("No cabe horizontalmente", "error");
+
           return;
         }
       }
     } else {
       if (isVertical) {
         if (row + size - 1 > 10) {
-          alert("No cabe verticalmente");
+          mostrarMensaje("No cabe verticalmente", "error");
           return;
         }
       } else {
         if (startColIndex + size > 10) {
-          alert("No cabe horizontalmente");
+          mostrarMensaje("No cabe horizontalmente", "error");
           return;
         }
       }
     }
 
-    // 3. OBTENER TODAS LAS CELDAS QUE OCUPARÁ EL BARCO Y SUS ALREDEDORES
+    // OBTENER TODAS LAS CELDAS QUE OCUPARÁ EL BARCO Y SUS ALREDEDORES
     const cellsToCheck = [];
     const cellsToOccupy = [];
 
@@ -530,20 +540,22 @@ function mostrarMensaje(texto, tipo = "info") {
       new Set(cellsToCheck.map((cell) => `${cell.col}${cell.row}`))
     ).map((str) => ({ col: str[0], row: parseInt(str.slice(1)) }));
 
-    // 4. VERIFICAR SOLAPAMIENTO Y PROXIMIDAD
+    // VERIFICAR SOLAPAMIENTO Y PROXIMIDAD
     for (const cellPos of uniqueCellsToCheck) {
       const cell = document.querySelector(
         `.cell[data-col="${cellPos.col}"][data-row="${cellPos.row}"]`
       );
       if (cell && cell.dataset.occupied) {
-        alert(
-          "No puedes colocar barcos tan cerca de otros barcos. Debe haber al menos una casilla de separación."
+        mostrarMensaje(
+          "No puedes colocar barcos tan cerca de otros barcos. Debe haber al menos una casilla de separación.",
+          "error"
         );
+
         return;
       }
     }
 
-    // 5. MARCAR CELDAS COMO OCUPADAS (solo las del barco, no las adyacentes)
+    // MARCAR CELDAS COMO OCUPADAS (solo las del barco, no las adyacentes)
     cellsToOccupy.forEach((cellPos) => {
       const cell = document.querySelector(
         `.cell[data-col="${cellPos.col}"][data-row="${cellPos.row}"]`
@@ -553,7 +565,7 @@ function mostrarMensaje(texto, tipo = "info") {
       }
     });
 
-    // 6. CREAR Y POSICIONAR BARCO VISUAL
+    // CREAR Y POSICIONAR BARCO VISUAL
     const shipDiv = document.createElement("div");
     shipDiv.classList.add("placed-ship");
     shipDiv.classList.add(isVertical ? "vertical" : "horizontal");
@@ -588,7 +600,7 @@ function mostrarMensaje(texto, tipo = "info") {
 
     document.getElementById("ships-layer").appendChild(shipDiv);
 
-    // 7. ELIMINAR BARCO DEL PANEL
+    // ELIMINAR BARCO DEL PANEL
     const shipButton = document.querySelector(
       `.ship-btn[data-ship="${shipInfo.ship}"]`
     );
@@ -596,10 +608,10 @@ function mostrarMensaje(texto, tipo = "info") {
       shipButton.remove();
     }
 
-    // 8. DESELECCIONAR
+    // DESELECCIONAR
     selectedShip = null;
 
-    // 9. GUARDAR POSICIÓN
+    // GUARDAR POSICIÓN
     shipsPlaced.push({
       ship: shipInfo.ship,
       col: col,
@@ -610,10 +622,13 @@ function mostrarMensaje(texto, tipo = "info") {
 
     console.log("Barcos colocados:", shipsPlaced);
 
-    // 10. VERIFICAR SI TODOS LOS BARCOS ESTÁN COLOCADOS
+    // VERIFICAR SI TODOS LOS BARCOS ESTÁN COLOCADOS
     if (shipsPlaced.length === 6) {
       document.getElementById("btn-batalla").style.background = "#4CAF50";
-      alert("¡Todos los barcos colocados! Puedes comenzar la batalla.");
+      mostrarMensaje(
+        "¡Todos los barcos colocados! Puedes comenzar la batalla.",
+        "success"
+      );
     }
   }
 })();
