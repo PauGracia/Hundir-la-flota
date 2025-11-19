@@ -1,4 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Lista de archivos (RENOMBRADOS)
+  const almirantes = [
+    "Almirante_Cunningham.jpg",
+    "Almirante_Donitz.jpg",
+    "Almirante_Nimitz.jpg",
+    "Almirante_Yamamoto.jpg",
+  ];
+
+  // Elegir uno al azar
+  const elegido = almirantes[Math.floor(Math.random() * almirantes.length)];
+
+  // Cambiar imagen
+  document.getElementById("almirante-img").src =
+    "../assets/img/almirantes/" + elegido;
+
+  // Convertir el nombre del archivo en texto legible
+  // "Almirante_Nimitz.jpg" → "Almirante Nimitz"
+  const nombreLegible = elegido
+    .replace(".jpg", "")
+    .replace("Almirante_", "Almirante ");
+
+  // Mostrar el nombre
+  document.getElementById("almirante-nombre").innerText = nombreLegible;
   const sonidoHover = document.getElementById("sonidoHover");
   const sonidoClick = document.getElementById("sonidoClick");
 
