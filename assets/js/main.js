@@ -11,8 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const elegido = almirantes[Math.floor(Math.random() * almirantes.length)];
 
   // Cambiar imagen
-  document.getElementById("almirante-img").src =
-    "../assets/img/almirantes/" + elegido;
+  const imgAlmirante = document.getElementById("almirante-img");
+  if (imgAlmirante) {
+    imgAlmirante.src = "../assets/img/almirantes/" + elegido;
+  }
 
   // Convertir el nombre del archivo en texto legible
   // "Almirante_Nimitz.jpg" → "Almirante Nimitz"
@@ -21,7 +23,11 @@ document.addEventListener("DOMContentLoaded", () => {
     .replace("Almirante_", "Almirante ");
 
   // Mostrar el nombre
-  document.getElementById("almirante-nombre").innerText = nombreLegible;
+  const nombreAlmirante = document.getElementById("almirante-nombre");
+  if (nombreAlmirante) {
+    nombreAlmirante.innerText = nombreLegible;
+  }
+
   const sonidoHover = document.getElementById("sonidoHover");
   const sonidoClick = document.getElementById("sonidoClick");
 
@@ -369,6 +375,7 @@ function mostrarMensaje(texto, tipo = "info") {
 //****Logica colocación de barcos***** */
 (function () {
   const board = document.getElementById("board");
+  if (!board) return;
   const labelsTop = document.getElementById("labels-top");
   const labelsLeft = document.getElementById("labels-left");
   const letters = "ABCDEFGHIJ";
@@ -621,7 +628,8 @@ function mostrarMensaje(texto, tipo = "info") {
     shipImg.src = shipInfo.src;
     shipDiv.appendChild(shipImg);
 
-    document.getElementById("ships-layer").appendChild(shipDiv);
+    const shipsLayer = document.getElementById("ships-layer");
+    if (shipsLayer) shipsLayer.appendChild(shipDiv);
 
     // ELIMINAR BARCO DEL PANEL
     const shipButton = document.querySelector(

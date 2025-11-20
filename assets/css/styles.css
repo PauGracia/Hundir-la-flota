@@ -1002,6 +1002,7 @@ body.settings {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-items: center;
 }
 
 .fleet-title {
@@ -1016,6 +1017,7 @@ body.settings {
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   width: 100%;
+  justify-items: center;
 }
 
 /* BOTONES DE BARCO */
@@ -1122,7 +1124,7 @@ body.settings {
 .board-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
 }
 
 .labels-top {
@@ -1266,7 +1268,8 @@ body.settings {
     max-width: 250px;
   }
   .labels-top {
-    margin-left: 0;
+    margin-left: 30px;
+    justify-content: center;
   }
 
   .labels-left {
