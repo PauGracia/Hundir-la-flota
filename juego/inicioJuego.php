@@ -1,3 +1,23 @@
+<?php
+session_start();
+
+// Si no hay usuario, redirige al login
+if (!isset($_SESSION["usuario"])) {
+    header("Location: index.php");
+    exit;
+}
+
+$nombreUsuario = $_SESSION["usuario"];
+
+require_once("../php/conexion.php");
+$stmt = $conexion->prepare("SELECT * FROM usuario WHERE nombreUsuario = ?");
+$stmt->bind_param("s", $nombreUsuario);
+$stmt->execute();
+$result = $stmt->get_result();
+$usuario = $result->fetch_assoc();
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -27,9 +47,10 @@
         <div class="attaker-con">
           <p class="attacker-text0">Capitan Paul:</p>
           <p class="captain-text">
-            ¡Almirante! Las tropas enemigas se acercan, disponga las naves para
-            la batalla.
+            ¡Almirante <?php echo htmlspecialchars($usuario['nombreUsuario']); ?>!  
+            Las tropas enemigas se acercan, disponga las naves para la batalla.
           </p>
+
         </div>
       </div>
 
@@ -56,6 +77,7 @@
         <div class="fleet-grid">
           <button
             class="ship-btn vertical"
+            title="Portaviones"
             data-ship="portaviones"
             data-size="5"
           >
@@ -73,7 +95,7 @@
             <span class="rotate-btn">⟳</span>
           </button>
 
-          <button class="ship-btn vertical" data-ship="acorazado" data-size="5">
+          <button class="ship-btn vertical" title="Acorazado" data-size="5">
             <img
               src="../assets/img/imagenes/acorazado.png"
               class="ship-img vertical-img"
@@ -88,6 +110,7 @@
 
           <button
             class="ship-btn vertical"
+            title="Destructor"
             data-ship="destructor"
             data-size="4"
           >
@@ -103,7 +126,12 @@
             <span class="rotate-btn">⟳</span>
           </button>
 
-          <button class="ship-btn vertical" data-ship="fragata" data-size="3">
+          <button
+            class="ship-btn vertical"
+            title="Fragata"
+            data-ship="fragata"
+            data-size="3"
+          >
             <img
               src="../assets/img/imagenes/fragata.png"
               class="ship-img vertical-img"
@@ -116,7 +144,12 @@
             <span class="rotate-btn">⟳</span>
           </button>
 
-          <button class="ship-btn vertical" data-ship="corbeta1" data-size="2">
+          <button
+            class="ship-btn vertical"
+            title="Corbeta"
+            data-ship="corbeta1"
+            data-size="2"
+          >
             <img
               src="../assets/img/imagenes/corbeta.png"
               class="ship-img vertical-img"
@@ -129,7 +162,12 @@
             <span class="rotate-btn">⟳</span>
           </button>
 
-          <button class="ship-btn vertical" data-ship="corbeta2" data-size="2">
+          <button
+            class="ship-btn vertical"
+            title="Corbeta"
+            data-ship="corbeta2"
+            data-size="2"
+          >
             <img
               src="../assets/img/imagenes/corbeta.png"
               class="ship-img vertical-img"

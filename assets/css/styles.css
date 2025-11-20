@@ -989,6 +989,7 @@ body.settings {
 
 .setup-container {
   display: flex;
+
   gap: 2rem;
   padding: 1.5rem;
   margin-top: 160px;
@@ -1213,11 +1214,21 @@ body.settings {
   background: rgba(255, 165, 0, 0.1);
 }
 
+@media (max-width: 1200px) {
+  .setup-container {
+    flex-direction: column;
+    margin-top: 140px;
+    gap: 1.5rem;
+    align-items: center;
+  }
+}
+
 @media (max-width: 900px) {
   .setup-container {
     flex-direction: column;
     margin-top: 140px;
     gap: 1.5rem;
+    align-items: center;
   }
 
   .header-bar {
