@@ -106,19 +106,21 @@ let matrizJugador = Array.from({ length: 10 }, () => Array(10).fill(0));
 
 // Colocar barcos
 flotaJugador.forEach(b => {
-    // Asegurarse de usar los nombres correctos
-    const x = b.xInicio - 1; // si en PHP guardaste 1-10
-    const y = b.yInicio - 1;
-    const size = b.size; // asegúrate de que sea un número válido
-    const orientacion = b.orientacion;
+    const startX = b.xInicio - 1; // convertir 1-10 a 0-9
+    const startY = b.yInicio - 1;
+    const ancho = b.ancho;
+    const alto = b.alto;
 
-    for (let i = 0; i < size; i++) {
-        let nx = x + (orientacion === "horizontal" ? i : 0);
-        let ny = y + (orientacion === "vertical" ? i : 0);
-        if (nx < 0 || nx > 9 || ny < 0 || ny > 9) continue; // evita índices fuera de rango
-        matrizJugador[ny][nx] = 1;
+    for (let dy = 0; dy < alto; dy++) {
+        for (let dx = 0; dx < ancho; dx++) {
+            let nx = startX + dx;
+            let ny = startY + dy;
+            if (nx < 0 || nx > 9 || ny < 0 || ny > 9) continue;
+            matrizJugador[ny][nx] = 1;
+        }
     }
 });
+
 
 
 // Pintar tablero
@@ -136,14 +138,42 @@ for (let y = 0; y < 10; y++) {
 /* ==========================
    TABLERO DEL ENEMIGO
 ========================== */
+const flotaEnemigo = <?php echo json_encode($flotaEnemigo); ?>;
 const enemyBoard = document.getElementById("board-enemy");
 
-for (let i = 0; i < 100; i++) {
-    const c = document.createElement("div");
-    c.classList.add("cell-enemy");
-    enemyBoard.appendChild(c);
+
+// Crear matriz del enemigo
+let matrizEnemigo = Array.from({ length: 10 }, () => Array(10).fill(0));
+
+flotaEnemigo.forEach(b => {
+    const startX = b.xInicio - 1;
+    const startY = b.yInicio - 1;
+    const ancho = b.ancho;
+    const alto = b.alto;
+
+    for (let dy = 0; dy < alto; dy++) {
+        for (let dx = 0; dx < ancho; dx++) {
+            let nx = startX + dx;
+            let ny = startY + dy;
+            if (nx < 0 || nx > 9 || ny < 0 || ny > 9) continue;
+            matrizEnemigo[ny][nx] = 1;
+        }
+    }
+});
+
+// Pintar tablero del enemigo
+for (let y = 0; y < 10; y++) {
+    for (let x = 0; x < 10; x++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell-enemy");
+        if (matrizEnemigo[y][x] === 1) {
+            cell.classList.add("cell-ship"); // para depuración
+        }
+        enemyBoard.appendChild(cell);
+    }
 }
     });
+
 </script>
 
 </body>

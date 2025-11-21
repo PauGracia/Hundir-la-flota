@@ -1,17 +1,16 @@
 <?php
 function generarFlotaEnemiga() {
 
-    // Definición REAL de barcos
+    // Definición de barcos base
     $barcos = [
-        ["tipo" => "portaaviones", "size" => 10, "ancho" => 5, "alto" => 2],  // 2x5
-        ["tipo" => "acorazado",    "size" => 5,  "ancho" => 5, "alto" => 1],
-        ["tipo" => "destructor",   "size" => 4,  "ancho" => 4, "alto" => 1],
-        ["tipo" => "fragata",      "size" => 3,  "ancho" => 3, "alto" => 1],
-        ["tipo" => "corbeta",      "size" => 2,  "ancho" => 2, "alto" => 1],
-        ["tipo" => "corbeta",      "size" => 2,  "ancho" => 2, "alto" => 1],
+        ["tipo" => "portaaviones", "base_ancho" => 2, "base_alto" => 5],
+        ["tipo" => "acorazado",    "base_ancho" => 1, "base_alto" => 5],
+        ["tipo" => "destructor",   "base_ancho" => 1, "base_alto" => 4],
+        ["tipo" => "fragata",      "base_ancho" => 1, "base_alto" => 3],
+        ["tipo" => "corbeta",      "base_ancho" => 1, "base_alto" => 2],
+        ["tipo" => "corbeta",      "base_ancho" => 1, "base_alto" => 2],
     ];
 
-    // Tablero vacío
     $tablero = array_fill(0, 10, array_fill(0, 10, 0));
     $flotaFinal = [];
 
@@ -20,17 +19,16 @@ function generarFlotaEnemiga() {
         $colocado = false;
 
         while (!$colocado) {
-
-            // Rotación
+            // Rotación aleatoria
             $orientacion = rand(0,1) ? "horizontal" : "vertical";
 
-            // Ajustar ancho/alto según orientación
+            // Calcular ancho/alto según orientación
             if ($orientacion === "horizontal") {
-                $ancho = $barco["ancho"];
-                $alto  = $barco["alto"];
+                $ancho = $barco["base_alto"];
+                $alto  = $barco["base_ancho"];
             } else {
-                $ancho = $barco["alto"];
-                $alto  = $barco["ancho"];
+                $ancho = $barco["base_ancho"];
+                $alto  = $barco["base_alto"];
             }
 
             // Posición aleatoria
@@ -41,7 +39,6 @@ function generarFlotaEnemiga() {
             $ok = true;
             for ($i = 0; $i < $alto; $i++) {
                 for ($j = 0; $j < $ancho; $j++) {
-
                     if ($tablero[$y + $i][$x + $j] === 1) {
                         $ok = false;
                         break 2;
@@ -50,8 +47,7 @@ function generarFlotaEnemiga() {
             }
 
             if ($ok) {
-
-                // Marcar posiciones
+                // Marcar posiciones ocupadas
                 for ($i = 0; $i < $alto; $i++) {
                     for ($j = 0; $j < $ancho; $j++) {
                         $tablero[$y + $i][$x + $j] = 1;
@@ -61,11 +57,11 @@ function generarFlotaEnemiga() {
                 // Guardar barco listo para DB
                 $flotaFinal[] = [
                     "tipo"        => $barco["tipo"],
-                    "size"        => $barco["size"],
+                    "size"        => $ancho * $alto,
                     "ancho"       => $ancho,
                     "alto"        => $alto,
                     "orientacion" => $orientacion,
-                    "xInicio"     => $x + 1, // ajustar a 1–10
+                    "xInicio"     => $x + 1, // coordenadas 1–10
                     "yInicio"     => $y + 1
                 ];
 

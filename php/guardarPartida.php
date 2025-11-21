@@ -42,7 +42,6 @@ $stmt = $conexion->prepare("
 ");
 $stmt->bind_param("ssss", $jugador, $oponente, $flotaJugadorJson, $flotaEnemigoJson);
 $stmt->execute();
-
 $idPartida = $conexion->insert_id;
 
 // Preparar statement para insertar barcos
@@ -62,31 +61,54 @@ function normalizarTipoBarco($tipo) {
         "corbeta1" => "corbeta",
         "corbeta2" => "corbeta"
     ];
-
     return $map[$tipo] ?? null;
+}
+
+// Función para calcular ancho y alto según tipo y orientación
+function calcularDimensiones($tipo, $vertical) {
+    switch ($tipo) {
+        case "portaviones":
+            return $vertical ? [2, 5] : [5, 2];
+        case "acorazado":
+            return $vertical ? [1, 5] : [5, 1];
+        case "destructor":
+            return $vertical ? [1, 4] : [4, 1];
+        case "fragata":
+            return $vertical ? [1, 3] : [3, 1];
+        case "corbeta":
+            return $vertical ? [1, 2] : [2, 1];
+        default:
+            return [1,1]; // fallback
+    }
 }
 
 // Insertar barcos del jugador
 foreach ($flotaJugador as $barco) {
     $propietario = "jugador";
     $tipoBarco = normalizarTipoBarco($barco["tipo"]);
-
     if (!$tipoBarco) {
         echo json_encode(["error" => "Tipo de barco inválido: {$barco['tipo']}"]);
         exit;
     }
+
+    [$ancho, $alto] = calcularDimensiones($tipoBarco, $barco["orientacion"] === "vertical");
+
+    $size = $barco["size"];
+    $orientacion = $barco["orientacion"];
+    $xInicio = $barco["xInicio"];
+    $yInicio = $barco["yInicio"];
 
     $stmtBarco->bind_param(
         "issiiisii",
         $idPartida,
         $propietario,
         $tipoBarco,
-        $barco["size"],
-        $barco["ancho"],
-        $barco["alto"],
-        $barco["orientacion"],
-        $barco["xInicio"],
-        $barco["yInicio"]
+        $size,
+        $ancho,
+        $alto,
+        $orientacion,
+        $xInicio,
+        $yInicio
     );
     $stmtBarco->execute();
 }
@@ -94,21 +116,29 @@ foreach ($flotaJugador as $barco) {
 // Insertar barcos del enemigo
 foreach ($flotaEnemigo as $barco) {
     $propietario = "enemigo";
-    $tipoBarco = $barco["tipo"]; // ya viene correcto de generarFlotaEnemiga()
+    $tipoBarco = $barco["tipo"];
+    [$ancho, $alto] = calcularDimensiones($tipoBarco, $barco["orientacion"] === "vertical");
+
+    $size = $barco["size"];
+    $orientacion = $barco["orientacion"];
+    $xInicio = $barco["xInicio"];
+    $yInicio = $barco["yInicio"];
 
     $stmtBarco->bind_param(
         "issiiisii",
         $idPartida,
         $propietario,
         $tipoBarco,
-        $barco["size"],
-        $barco["ancho"],
-        $barco["alto"],
-        $barco["orientacion"],
-        $barco["xInicio"],
-        $barco["yInicio"]
+        $size,
+        $ancho,
+        $alto,
+        $orientacion,
+        $xInicio,
+        $yInicio
     );
     $stmtBarco->execute();
 }
+
+
 
 echo json_encode(["ok" => true, "idPartida" => $idPartida]);
