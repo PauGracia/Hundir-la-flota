@@ -373,13 +373,14 @@ function mostrarMensaje(texto, tipo = "info") {
 }
 
 //****Logica colocación de barcos***** */
+
+const shipsPlaced = []; // Debe ser global
 (function () {
   const board = document.getElementById("board");
   if (!board) return;
   const labelsTop = document.getElementById("labels-top");
   const labelsLeft = document.getElementById("labels-left");
   const letters = "ABCDEFGHIJ";
-  const shipsPlaced = [];
 
   let selectedShip = null;
 
@@ -643,13 +644,49 @@ function mostrarMensaje(texto, tipo = "info") {
     selectedShip = null;
 
     // GUARDAR POSICIÓN
-    shipsPlaced.push({
+    /*shipsPlaced.push({
       ship: shipInfo.ship,
       col: col,
       row: row,
       vertical: isVertical,
       size: size,
+    });*/
+    // DETERMINAR ANCHO Y ALTO REALES
+    let anchoReal, altoReal;
+
+    // PORTAVIONES → tamaño 2x5
+    if (shipInfo.ship === "portaviones") {
+      if (isVertical) {
+        anchoReal = 2;
+        altoReal = 5;
+      } else {
+        anchoReal = 5;
+        altoReal = 2;
+      }
+    }
+    // BARCOS NORMALES → 1xN
+    else {
+      if (isVertical) {
+        anchoReal = 1;
+        altoReal = size;
+      } else {
+        anchoReal = size;
+        altoReal = 1;
+      }
+    }
+
+    // GUARDAR POSICIÓN SEGÚN NUEVO FORMATO
+    shipsPlaced.push({
+      tipo: shipInfo.ship,
+      size: anchoReal * altoReal,
+      ancho: anchoReal,
+      alto: altoReal,
+      orientacion: isVertical ? "vertical" : "horizontal",
+      xInicio: letters.indexOf(col) + 1, // convertir A → 1, B → 2...
+      yInicio: row,
     });
+
+    console.log("Barcos colocados:", shipsPlaced);
 
     console.log("Barcos colocados:", shipsPlaced);
 
@@ -663,3 +700,42 @@ function mostrarMensaje(texto, tipo = "info") {
     }
   }
 })();
+
+//*********Guardar datos para Partida/Batalla************/
+const btnBatalla = document.getElementById("btn-batalla");
+if (btnBatalla) {
+  btnBatalla.addEventListener("click", async () => {
+    const jugadorNombre = document.getElementById(
+      "almirante-nombre-jugador"
+    ).value;
+    const almiranteNombre =
+      document.getElementById("almirante-nombre").innerText;
+
+    if (shipsPlaced.length !== 6) {
+      mostrarMensaje(
+        "Debe colocar todos los barcos antes de iniciar la batalla",
+        true
+      );
+      return;
+    }
+
+    const respuesta = await fetch("../php/guardarPartida.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jugador: jugadorNombre,
+        oponente: almiranteNombre,
+        flotaJugador: shipsPlaced,
+      }),
+    });
+
+    const data = await respuesta.json();
+
+    if (data.error) {
+      mostrarMensaje(data.error, true);
+      return;
+    }
+
+    window.location.href = "batalla.php?id=" + data.idPartida;
+  });
+}

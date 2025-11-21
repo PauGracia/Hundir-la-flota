@@ -7,7 +7,7 @@ CREATE DATABASE hundir_flota CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE hundir_flota;
 
 -- ============================================================
--- 1️⃣ Tabla: usuario
+--Tabla: usuario
 -- ============================================================
 CREATE TABLE usuario (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -19,7 +19,7 @@ CREATE TABLE usuario (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 2️⃣ Tabla: partidas
+-- Tabla: partidas
 -- ============================================================
 CREATE TABLE partidas (
     idPartida INT AUTO_INCREMENT PRIMARY KEY,
@@ -35,7 +35,7 @@ CREATE TABLE partidas (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 3️⃣ Tabla: almirantes
+-- Tabla: almirantes
 -- ============================================================
 CREATE TABLE almirantes (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -45,7 +45,7 @@ CREATE TABLE almirantes (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 4️⃣ Insertar almirantes con imágenes nuevas
+-- Insertar almirantes con imágenes nuevas
 -- ============================================================
 INSERT INTO almirantes (nombreAlmirante, imagenAlmirante, victorias)
 VALUES
@@ -55,7 +55,7 @@ VALUES
 ('Isoroku Yamamoto', 'Almirante_Yamamoto.jpg', 0);
 
 -- ============================================================
--- 5️⃣ Ejemplo de usuarios
+-- Ejemplo de usuarios
 -- ============================================================
 INSERT INTO usuario (nombreUsuario, pass)
 VALUES
@@ -64,7 +64,7 @@ VALUES
 ('player3', 'passw0rd');
 
 -- ============================================================
--- 6️⃣ Ejemplo de partidas
+-- Ejemplo de partidas
 -- ============================================================
 INSERT INTO partidas (nombreUsuario, nombreOponente, ganador, puntos)
 VALUES
@@ -73,7 +73,7 @@ VALUES
 ('player1', 'player3', 'player1', 200);
 
 -- ============================================================
--- 7️⃣ Tabla: barcos
+-- Tabla: barcos
 -- ============================================================
 CREATE TABLE barcos (
     idBarco INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,7 +92,7 @@ CREATE TABLE barcos (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- 8️⃣ Ejemplo de barco
+-- Ejemplo de barco
 -- ============================================================
 -- Portaaviones horizontal 2x5 del jugador en la partida 1
 INSERT INTO barcos (idPartida, propietario, tipoBarco, size, ancho, alto, orientacion, xInicio, yInicio)

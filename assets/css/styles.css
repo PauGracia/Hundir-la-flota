@@ -1346,3 +1346,67 @@ body.settings {
     max-width: 200px;
   }
 }
+
+/************************************
+---------Batalla----------------------
+*********************************/
+
+/* CONTENEDOR GENERAL */
+.battle-container {
+  margin-top: 150px;
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+}
+
+/* Títulos */
+.board-title {
+  color: white;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* TABLERO DEL JUGADOR (pequeño) */
+.board-grid-player {
+  display: grid;
+  grid-template-columns: repeat(10, 22px);
+  grid-template-rows: repeat(10, 22px);
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 5px;
+  border-radius: 6px;
+}
+
+.cell-player {
+  width: 22px;
+  height: 22px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+}
+
+.cell-ship {
+  background: gray;
+}
+
+/* TABLERO ENEMIGO (grande) */
+.board-grid-enemy {
+  display: grid;
+  grid-template-columns: repeat(10, 40px);
+  grid-template-rows: repeat(10, 40px);
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.cell-enemy {
+  width: 40px;
+  height: 40px;
+  background: #0d3b66; /* azul mar */
+  border: 1px solid #144f8a;
+  cursor: pointer;
+}
+
+.cell-enemy:hover {
+  background: #145ea8;
+}

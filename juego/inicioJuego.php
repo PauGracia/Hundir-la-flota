@@ -36,6 +36,9 @@ $usuario = $result->fetch_assoc();
   </head>
 
   <body class="body-inicio-juego">
+    <!-- Solo para pasar la info a la bbdd -->
+    <input type="hidden" id="almirante-nombre-jugador" value="<?php echo htmlspecialchars($usuario['nombreUsuario']); ?>" />
+
     <!-- Panel superior -->
     <div class="header-bar">
       <!-- BOTÓN VOLVER -->
@@ -59,14 +62,15 @@ $usuario = $result->fetch_assoc();
         <img id="almirante-img" class="attacker-img" />
 
         <div class="attaker-con">
-          <p class="attacker-text0">Atacante:</p>
+          <p class="attacker-text0">Contrincante:</p>
           <br />
           <p id="almirante-nombre" class="attacker-text"></p>
         </div>
       </div>
 
       <!-- BOTÓN BATALLA -->
-      <a href="batalla.php" class="header-btn battle">Batalla</a>
+      <button id="btn-batalla" class="header-btn battle">Batalla</button>
+
     </div>
 
     <div class="setup-container">
@@ -95,7 +99,7 @@ $usuario = $result->fetch_assoc();
             <span class="rotate-btn">⟳</span>
           </button>
 
-          <button class="ship-btn vertical" title="Acorazado" data-size="5">
+          <button class="ship-btn vertical" title="Acorazado" data-ship="acorazado" data-size="5">
             <img
               src="../assets/img/imagenes/acorazado.png"
               class="ship-img vertical-img"
