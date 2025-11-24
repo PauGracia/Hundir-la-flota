@@ -1463,31 +1463,64 @@ body.settings {
   box-sizing: border-box;
 }
 
-/* seguramente las label no entraran al final.... */
-/* área top (letras) */
-.enemy-labels-top {
-  grid-area: top;
+/* Capa superior para disparos */
+.overlay-grid {
+  position: absolute;
+  inset: 0;
   display: grid;
-  grid-template-columns: repeat(10, 40px);
-  column-gap: 3px;
-  padding-left: 6px;
-  margin: 0;
-  color: white;
-  text-align: center;
-  font-weight: bold;
-  font-size: 16px;
+  grid-template-columns: repeat(10, 43px);
+  grid-template-rows: repeat(10, 43px);
+
+  pointer-events: auto;
+  z-index: 30;
 }
 
-/* área left (números) */
-.enemy-labels-left {
-  grid-area: left;
-  display: grid;
-  grid-template-rows: repeat(10, 40px);
-  row-gap: 3px;
-  padding-top: 6px;
-  margin: 0;
+.overlay-cell {
+  background: black;
+  cursor: pointer;
+  border: 3px solid darkgray;
+  transition: 0.2s ease;
+}
+
+/* Cuando ya se ha disparado se vuelve transparente */
+.overlay-cell.revealed {
+  background: transparent;
+  pointer-events: none;
+}
+
+.hit-player {
+  background: red !important;
+  color: yellow;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.miss-player {
+  background: #162636 !important;
   color: white;
-  text-align: center;
-  font-weight: bold;
   font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell-enemy.hit {
+  background: darkred !important;
+  color: yellow;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fire-hit-cell {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 20;
 }
