@@ -1703,6 +1703,7 @@ body.settings {
   height: calc(10 * 40px + 9 * 3px);
   padding: 0; /* padding eliminado */
   box-sizing: content-box;
+  display: inline-block;
 }
 
 .cell-enemy-batalla {
@@ -1755,7 +1756,7 @@ body.settings {
   grid-template-rows: repeat(10, 40px);
   gap: 3px; /* mismo que tu board-grid-enemy */
   pointer-events: auto;
-  z-index: 30;
+  z-index: 50;
 }
 
 .overlay-cell {
@@ -1810,4 +1811,90 @@ body.settings {
   font-size: 24px;
   pointer-events: none;
   z-index: 20;
+}
+
+/* Panel jugador al estilo attacker */
+.player-panel-batalla {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 10px 16px;
+  border-radius: 12px;
+  gap: 10px;
+  margin-bottom: 10px;
+  transition: 0.2s;
+}
+
+.player-panel-batalla.turno {
+  border: 2px solid red;
+}
+
+.player-img-batalla {
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.player-text-batalla {
+  font-size: 1rem;
+  color: white;
+  margin: 0;
+}
+
+.mensaje-batalla-container {
+  display: flex;
+  flex-direction: column-reverse; /* para que el último mensaje se agregue arriba */
+  max-height: 100px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+/* Marcador */
+.scoreboard {
+  color: yellow;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Resaltar turno con borde rojo */
+.attacker-panel-batalla.turno {
+  border: 2px solid red;
+}
+
+.player-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Contenedor de imagen + mensajes */
+.captain-panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 450px;
+  gap: 10px;
+  align-items: flex-start;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+/* Imagen del capitán */
+.captain-img-batalla {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Mensajes */
+.mensajes-juego {
+  display: flex;
+  flex-direction: column-reverse; /* último mensaje arriba */
+  gap: 5px;
+  max-height: 80px; /* altura fija */
+  overflow-y: auto; /* scroll si hay más mensajes */
+  width: 100%;
+  padding-right: 5px;
 }

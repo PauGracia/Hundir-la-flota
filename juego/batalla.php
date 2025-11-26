@@ -28,12 +28,22 @@ if (!$partida) {
     die("Partida no encontrada con ID: " . $idPartida);
 }
 
-
-
+// Flotas
 $flotaJugador = json_decode($partida["flotaJugador"], true) ?? [];
 $flotaEnemigo = json_decode($partida["flotaEnemigo"], true) ?? [];
 $oponente = $partida["nombreOponente"] ?? "CPU";
-$usuario = $_SESSION["usuario"];
+
+// Datos del usuario (completo desde la BD)
+$nombreUsuario = $_SESSION["usuario"];
+$stmtUsuario = $conexion->prepare("SELECT * FROM usuario WHERE nombreUsuario = ?");
+$stmtUsuario->bind_param("s", $nombreUsuario);
+$stmtUsuario->execute();
+$resultUsuario = $stmtUsuario->get_result();
+$usuario = $resultUsuario->fetch_assoc();
+
+if (!$usuario) {
+    die("Usuario no encontrado");
+}
 
 // Disparos previos
 $stmt2 = $conexion->prepare("SELECT * FROM disparos WHERE idPartida=?");
@@ -41,7 +51,7 @@ $stmt2->bind_param("i", $idPartida);
 $stmt2->execute();
 $disparos = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
-// Después de cargar los disparos, se verifica si hay estado guardado
+// Estado guardado del tablero
 $estadoTablero = [];
 if (isset($partida["estadoTablero"]) && !empty($partida["estadoTablero"])) {
     $estadoTablero = json_decode($partida["estadoTablero"], true);
@@ -50,7 +60,7 @@ if (isset($partida["estadoTablero"]) && !empty($partida["estadoTablero"])) {
 // Debug información
 error_log("=== BATALLA CARGADA ===");
 error_log("Partida ID: " . $partida['idPartida']);
-error_log("Usuario: " . $partida['nombreUsuario']);
+error_log("Usuario: " . $usuario['nombreUsuario']);
 error_log("Estado: " . $partida['estado']);
 error_log("Flota Jugador: " . count($flotaJugador) . " barcos");
 error_log("Flota Enemigo: " . count($flotaEnemigo) . " barcos");
@@ -59,6 +69,7 @@ error_log("Disparos: " . count($disparos) . " registros");
 // Pasar el estado a JavaScript
 echo "<script>const estadoTablero = " . json_encode($estadoTablero) . ";</script>";
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -72,18 +83,27 @@ echo "<script>const estadoTablero = " . json_encode($estadoTablero) . ";</script
 </head>
 
 <body class="body-batalla-juego">
+    <iframe 
+    id="audioFrame" 
+    src="/Hundir-la-flota/audioPlayerFrame.html" 
+    style="display:none">
+   </iframe>
 <div class="header-bar-batalla">
   <a href="menuJuego.php" class="header-btn-batalla">Salir</a>
 
-  <div class="captain-panel-batalla">
-    <img src="../assets/img/imagenes/capitan.png" class="captain-img-batalla" />
-    <div class="attaker-con-batalla">
-      <p class="attacker-text0-batalla">Capitán:</p>
-      <p class="captain-text-batalla">¡Almirante <?php echo htmlspecialchars($usuario); ?>!</p>
-    </div>
+  <!-- Panel jugador -->
+  <div id="player-header-panel" class="attacker-panel-batalla">
+      <img class="attacker-img-batalla" 
+           src="../assets/img/perfiles/<?php echo htmlspecialchars($usuario['imagenPerfil'] ?? 'default-avatar.jpg'); ?>" 
+           alt="Perfil">
+      <div class="attaker-con-batalla">
+          <p class="attacker-text0-batalla">Almirante:</p>
+          <span class="attacker-text-batalla"><?php echo htmlspecialchars($usuario['nombreUsuario']); ?></span>
+      </div>
   </div>
 
-  <div class="attacker-panel-batalla">
+  <!-- Panel atacante -->
+  <div id="attacker-header-panel" class="attacker-panel-batalla">
     <img id="almirante-img" class="attacker-img-batalla" />
     <div class="attaker-con-batalla">
       <p class="attacker-text0-batalla">Enemigo:</p>
@@ -106,27 +126,33 @@ echo "<script>const estadoTablero = " . json_encode($estadoTablero) . ";</script
 <!-- ZONA DE BATALLA -->
 <!-- =============================== -->
 <div class="battle-container">
+    <!-- IZQUIERDA: Panel jugador + tablero -->
+    <div class="player-section">
+        <div class="captain-panel-wrapper">
+            <!-- Imagen del capitán -->
+            <img src="../assets/img/imagenes/capitan.png" class="captain-img-batalla" alt="Capitán" />
 
-    <!-- TABLERO DEL JUGADOR -->
-    <div class="player-board-container">
-        <h2 class="board-title">Tu Flota</h2>
+            <!-- Mensajes del juego -->
+            <div id="mensajes-juego" class="mensajes-juego"></div>
+             <!-- Tablero del jugador -->
         <div id="board-player" class="board-grid-player"></div>
+        </div>
+
+       
     </div>
 
-    <!-- TABLERO DEL ENEMIGO -->
+    <!-- DERECHA: Panel enemigo + tablero -->
     <div class="enemy-board-wrapper">
-        <div class="enemy-grid">
-            <h2 class="board-title">Flota Enemiga</h2>
-            <div class="enemy-board-with-ships" id="enemy-wrapper">
-                <div id="enemy-board" class="board-grid-enemy"></div>
-                <div id="enemy-ships-layer" class="ships-layer"></div>
-                <div id="enemy-overlay" class="overlay-grid"></div>
-            </div>
-
+        <div class="scoreboard" id="score-enemy">Puntos: 0</div>
+        <h2 class="board-title">Flota Enemiga</h2>
+        <div class="enemy-board-with-ships" id="enemy-wrapper">
+            <div id="enemy-board" class="board-grid-enemy"></div>
+            <div id="enemy-ships-layer" class="ships-layer"></div>
+            <div id="enemy-overlay" class="overlay-grid"></div>
         </div>
     </div>
-
 </div>
+
 
 <div id="mensaje" class="mensaje"></div>
 <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
@@ -246,11 +272,56 @@ document.addEventListener("DOMContentLoaded", async () => {
         setTimeout(()=>{ msg.textContent=""; msg.className="mensaje"; }, 3500);
     }
 
-    function mostrarMensajeCapitan(text){
-        const capText = document.querySelector(".captain-text-batalla");
+    const mensajesJuego = [];
 
-        capText.textContent = text;
+function mostrarMensajeCapitan(text){
+    mensajesJuego.push(text);
+    if(mensajesJuego.length > 3) mensajesJuego.shift(); // mantener últimos 3
+
+    const contenedor = document.getElementById("mensajes-juego");
+    contenedor.innerHTML = mensajesJuego.map(m => `<p>${m}</p>`).join("");
+}
+
+
+    function actualizarTurno(turnoActual){
+    const playerHeader = document.getElementById("player-header-panel");
+    const attackerHeader = document.getElementById("attacker-header-panel");
+
+    if(turnoActual === "jugador"){
+        playerHeader.classList.add("turno");
+        attackerHeader.classList.remove("turno");
+    } else {
+        playerHeader.classList.remove("turno");
+        attackerHeader.classList.add("turno");
     }
+}
+
+
+let puntos = 0;
+
+function actualizarPuntos(resultado){
+    if(resultado === "tocado") puntos += 100;
+    else if(resultado === "hundido") puntos += 1000;
+    else if(resultado === "agua") puntos -= 10;
+
+    document.getElementById("score-enemy").textContent = "Puntos: " + puntos;
+}
+
+function finalizarPartida(ganador){
+    if(ganador === usuario) puntos += 5000;
+
+    fetch("../php/guardarProgreso.php", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            idPartida: parseInt(document.getElementById("idPartida").value),
+            puntos: puntos,
+            estadoTablero: estadoTablero
+        })
+    }).then(r => r.json()).then(data => console.log("Puntos guardados:", data));
+}
+
+
 
     function colocarBarcosEnemigos(flota){
         const layer = document.getElementById("enemy-ships-layer");
@@ -286,88 +357,127 @@ document.addEventListener("DOMContentLoaded", async () => {
     const overlay = document.getElementById("enemy-overlay");
     overlay.innerHTML = "";
 
+    // Asegurar que el overlay tenga las dimensiones correctas
+    overlay.style.width = 'calc(10 * 40px + 9 * 3px)';
+    overlay.style.height = 'calc(10 * 40px + 9 * 3px)';
+
     for (let y = 1; y <= 10; y++) {
         for (let x = 1; x <= 10; x++) {
             const btn = document.createElement("div");
             btn.classList.add("overlay-cell");
             btn.dataset.x = x;
             btn.dataset.y = y;
-
-            // ===== Restaurar disparos previos =====
-            const disparoPrevio = disparos.find(d => d.posX === x && d.posY === y);
+            
+            // DEBUG: Mostrar coordenadas temporalmente
+            btn.title = `Disparar a ${letters[x-1]}${y}`;
+            
+            // Verificar si ya hay disparo aquí
+            const disparoPrevio = disparos.find(d => d.posX === x && d.posY === y && d.propietario === "jugador");
+            const celdaReal = document.getElementById(`enemy-${x}-${y}`);
+            
             if (disparoPrevio) {
-                const celdaReal = document.getElementById(`enemy-${x}-${y}`);
+                btn.classList.add("revealed");
                 celdaReal.dataset.disparado = "true";
-
-                const layer = document.getElementById("enemy-ships-layer");
-
+                
                 if (disparoPrevio.resultado === "tocado" || disparoPrevio.resultado === "hundido") {
-                    const fuego = document.createElement("div");
-                    fuego.classList.add("fire-hit-cell");
-                    const cellSize = 40, gap = 3;
-                    fuego.style.left = (x-1)*(cellSize+gap) + "px";
-                    fuego.style.top = (y-1)*(cellSize+gap) + "px";
-                    fuego.style.width = cellSize + "px";
-                    fuego.style.height = cellSize + "px";
-                    fuego.innerHTML = "💥";
-                    layer.appendChild(fuego);
+                    btn.innerHTML = "💥";
+                    btn.style.color = "yellow";
+                    btn.style.fontSize = "24px";
+                    btn.style.display = "flex";
+                    btn.style.justifyContent = "center";
+                    btn.style.alignItems = "center";
                 } else {
-                    celdaReal.classList.add("miss");
+                    btn.innerHTML = "💧";
+                    btn.style.color = "lightblue";
+                    btn.style.fontSize = "20px";
+                    btn.style.display = "flex";
+                    btn.style.justifyContent = "center";
+                    btn.style.alignItems = "center";
                 }
             }
 
-            btn.addEventListener("click", () => {
+            btn.addEventListener("click", (e) => {
+                console.log(`Click en overlay: ${x},${y}`);
+                manejarDisparoJugador(x, y, btn, celdaReal);
+            });
+
+            overlay.appendChild(btn);
+        }
+    }
+}
+
+// Función separada para manejar disparos
+function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
     if (turno !== "jugador") {
         mostrarMensajeCapitan("¡Espere su turno, almirante!");
         return;
     }
 
-    const celdaReal = document.getElementById(`enemy-${x}-${y}`);
-    if (celdaReal.dataset.disparado === "true") return;
+    if (celdaReal.dataset.disparado === "true") {
+        console.log("Celda ya disparada, ignorando...");
+        return;
+    }
 
-    celdaReal.dataset.disparado = "true"; 
-    btn.classList.add("revealed");
+    console.log(`Procesando disparo en: ${x},${y}`);
+    
+    // Marcar inmediatamente como disparado
+    celdaReal.dataset.disparado = "true";
+    overlayCell.classList.add("revealed");
 
     const ocupado = celdaReal.dataset.occupied === "true";
     const barco = celdaReal.dataset.ship || null;
     const layer = document.getElementById("enemy-ships-layer");
 
     if (ocupado) {
+        // Impacto
         const fuego = document.createElement("div");
         fuego.classList.add("fire-hit-cell");
         const cellSize = 40, gap = 3;
         fuego.style.left = (x-1)*(cellSize+gap) + "px";
-        fuego.style.top  = (y-1)*(cellSize+gap) + "px";
+        fuego.style.top = (y-1)*(cellSize+gap) + "px";
         fuego.style.width = cellSize + "px";
         fuego.style.height = cellSize + "px";
         fuego.innerHTML = "💥";
+        fuego.style.display = "flex";
+        fuego.style.justifyContent = "center";
+        fuego.style.alignItems = "center";
+        fuego.style.fontSize = "24px";
         layer.appendChild(fuego);
 
-        mostrarMensajeCapitan(`¡Impacto en ${celdaReal.dataset.col}${celdaReal.dataset.row}!`);
+        mostrarMensajeCapitan(`¡Impacto en ${letters[x-1]}${y}!`);
+        actualizarPuntos("tocado");
 
-        const todasCeldas = Array.from(document.querySelectorAll(`.cell-enemy[data-ship='${barco}']`));
+        // Verificar si el barco fue hundido
+        const todasCeldas = Array.from(document.querySelectorAll(`.cell-enemy-batalla[data-ship='${barco}']`));
         const hundido = todasCeldas.every(c => c.dataset.disparado === "true");
+        
         if (hundido) {
             mostrarMensajeCapitan(`¡Almirante! Hemos hundido el ${barco} enemigo!`);
+            actualizarPuntos("hundido");
         }
     } else {
+        // Agua
+        overlayCell.innerHTML = "";
+        overlayCell.style.color = "lightblue";
+        overlayCell.style.fontSize = "20px";
+        overlayCell.style.display = "flex";
+        overlayCell.style.justifyContent = "center";
+        overlayCell.style.alignItems = "center";
+        
         celdaReal.classList.add("miss");
-        mostrarMensajeCapitan(`Agua en ${celdaReal.dataset.col}${celdaReal.dataset.row}`);
+        mostrarMensajeCapitan(`Agua en ${letters[x-1]}${y}`);
+        actualizarPuntos("agua");
     }
 
-    // ===== DEBUG: Ver qué datos se envían =====
+    // Guardar disparo
     const datosDisparo = {
-        idPartida: idPartida,
+        idPartida: parseInt(idPartida),
         propietario: "jugador",
         x: x,
         y: y,
         resultado: ocupado ? "tocado" : "agua"
     };
-    
-    console.log("Enviando disparo:", datosDisparo);
-    console.log("Tipo de idPartida:", typeof idPartida, "Valor:", idPartida);
 
-    // ===== Guardar disparo en BD =====
     fetch("../php/guardarDisparo.php", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -375,7 +485,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     })
     .then(response => response.json())
     .then(data => {
-        console.log("Respuesta del servidor:", data);
         if (data.error) {
             console.error("Error al guardar disparo:", data.error);
         }
@@ -384,16 +493,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Error en fetch:", error);
     });
 
+    // Cambiar turno
     turno = "enemigo";
+    actualizarTurno(turno);
     setTimeout(turnoEnemigo, 1200);
-});
-
-            overlay.appendChild(btn);
-        }
-    }
 }
-
-
 
  
     function turnoEnemigo(){
@@ -453,6 +557,26 @@ function sorteoInicial(){
 
         partidaIniciada=true;
     }
+
+
+    /*function debugOverlay() {
+    const overlayCells = document.querySelectorAll('.overlay-cell');
+    console.log(`Total celdas overlay: ${overlayCells.length}`);
+    
+    overlayCells.forEach(cell => {
+        cell.addEventListener('mouseenter', () => {
+            cell.style.background = 'rgba(255, 0, 0, 0.3)';
+        });
+        cell.addEventListener('mouseleave', () => {
+            if (!cell.classList.contains('revealed')) {
+                cell.style.background = 'rgba(0, 0, 0, 0.3)';
+            }
+        });
+    });
+}
+
+// Llamar después de crearOverlayDisparos()
+setTimeout(debugOverlay, 1000);*/
 
 
    // ==========================
