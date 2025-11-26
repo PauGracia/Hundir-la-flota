@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Convertir el nombre del archivo en texto legible
-  // "Almirante_Nimitz.jpg" → "Almirante Nimitz"
+  // "Almirante_Nimitz.jpg" en "Almirante Nimitz"
   const nombreLegible = elegido
     .replace(".jpg", "")
     .replace("Almirante_", "Almirante ");
@@ -279,6 +279,104 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Variables globales para control de sonido
+  let sonidosHabilitados = false;
+
+  console.log("DOM cargado - inicializando eventos");
+
+  // Habilitar sonidos después del primer click del usuario
+  function habilitarSonidos() {
+    sonidosHabilitados = true;
+    document.removeEventListener("click", habilitarSonidos);
+    document.removeEventListener("keydown", habilitarSonidos);
+    console.log("Sonidos habilitados");
+  }
+
+  document.addEventListener("click", habilitarSonidos);
+  document.addEventListener("keydown", habilitarSonidos);
+
+  console.log("DOM cargado - inicializando eventos");
+
+  // ==========================
+  // MODAL CARGAR PARTIDA
+  // ==========================
+  if (document.getElementById("modalCargar")) {
+    const btnCargarPartida = document.getElementById("btnCargarPartida");
+    const modalCargar = document.getElementById("modalCargar");
+    const cerrarModalCargar = document.getElementById("cerrarModalCargar");
+
+    console.log("btnCargarPartida:", btnCargarPartida);
+    console.log("modalCargar:", modalCargar);
+    console.log("cerrarModalCargar:", cerrarModalCargar);
+
+    if (btnCargarPartida) {
+      btnCargarPartida.addEventListener("click", function (e) {
+        console.log("Clic en btnCargarPartida");
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!this.hasAttribute("disabled")) {
+          console.log("Abriendo modal cargar partida");
+          modalCargar.classList.remove("oculto");
+        } else {
+          console.log("Botón deshabilitado - no hay partidas");
+        }
+      });
+    }
+
+    if (cerrarModalCargar) {
+      cerrarModalCargar.addEventListener("click", function () {
+        console.log("Cerrando modal cargar partida");
+        modalCargar.classList.add("oculto");
+      });
+    }
+
+    modalCargar.addEventListener("click", function (e) {
+      if (e.target === modalCargar) {
+        console.log("Clic fuera del modal - cerrando");
+        modalCargar.classList.add("oculto");
+      }
+    });
+  }
+
+  // ==========================
+  // MODAL SALIR
+  // ==========================
+  const btnSalirModal = document.getElementById("btnSalir");
+  const modalSalirModal = document.getElementById("modalSalir");
+  const confirmarSalirModal = document.getElementById("confirmarSalir");
+  const cancelarSalirModal = document.getElementById("cancelarSalir");
+
+  if (btnSalirModal) {
+    btnSalir.addEventListener("click", function (e) {
+      e.preventDefault();
+      console.log("Abriendo modal salir");
+      modalSalir.classList.remove("oculto");
+    });
+  }
+
+  if (confirmarSalirModal) {
+    confirmarSalir.addEventListener("click", function () {
+      console.log("Confirmando salida");
+      window.location.href = "../php/logout.php";
+    });
+  }
+
+  if (cancelarSalirModal) {
+    cancelarSalir.addEventListener("click", function () {
+      console.log("Cancelando salida");
+      modalSalir.classList.add("oculto");
+    });
+  }
+
+  if (modalSalirModal) {
+    modalSalir.addEventListener("click", function (e) {
+      if (e.target === modalSalir) {
+        console.log("Clic fuera del modal salir - cerrando");
+        modalSalir.classList.add("oculto");
+      }
+    });
+  }
   /* =====================================================
      PERFIL - Cambio de contraseña
   ===================================================== */
@@ -383,19 +481,6 @@ const shipsPlaced = []; // Debe ser global
   const letters = "ABCDEFGHIJ";
 
   let selectedShip = null;
-
-  // Generar labels
-  for (let i = 0; i < 10; i++) {
-    const label = document.createElement("div");
-    label.textContent = letters[i];
-    labelsTop.appendChild(label);
-  }
-
-  for (let i = 1; i <= 10; i++) {
-    const label = document.createElement("div");
-    label.textContent = i;
-    labelsLeft.appendChild(label);
-  }
 
   // Generar tablero
   for (let row = 1; row <= 10; row++) {

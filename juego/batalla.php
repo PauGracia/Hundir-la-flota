@@ -13,19 +13,51 @@ require_once("../php/conexion.php");
 $idPartida = $_GET["id"] ?? null;
 
 if (!$idPartida) {
-    die("Partida no encontrada");
+    die("Partida no encontrada: No se proporcionó ID");
 }
 
 // Obtener datos de la partida desde BD
 $stmt = $conexion->prepare("SELECT * FROM partidas WHERE idPartida = ?");
 $stmt->bind_param("i", $idPartida);
 $stmt->execute();
-$partida = $stmt->get_result()->fetch_assoc();
+$result = $stmt->get_result();
+$partida = $result->fetch_assoc();
 
-$flotaJugador = json_decode($partida["flotaJugador"], true);
-$flotaEnemigo = json_decode($partida["flotaEnemigo"], true);
-$oponente = $partida["nombreOponente"];
+// VERIFICAR QUE LA PARTIDA EXISTE
+if (!$partida) {
+    die("Partida no encontrada con ID: " . $idPartida);
+}
+
+
+
+$flotaJugador = json_decode($partida["flotaJugador"], true) ?? [];
+$flotaEnemigo = json_decode($partida["flotaEnemigo"], true) ?? [];
+$oponente = $partida["nombreOponente"] ?? "CPU";
 $usuario = $_SESSION["usuario"];
+
+// Disparos previos
+$stmt2 = $conexion->prepare("SELECT * FROM disparos WHERE idPartida=?");
+$stmt2->bind_param("i", $idPartida);
+$stmt2->execute();
+$disparos = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Después de cargar los disparos, se verifica si hay estado guardado
+$estadoTablero = [];
+if (isset($partida["estadoTablero"]) && !empty($partida["estadoTablero"])) {
+    $estadoTablero = json_decode($partida["estadoTablero"], true);
+}
+
+// Debug información
+error_log("=== BATALLA CARGADA ===");
+error_log("Partida ID: " . $partida['idPartida']);
+error_log("Usuario: " . $partida['nombreUsuario']);
+error_log("Estado: " . $partida['estado']);
+error_log("Flota Jugador: " . count($flotaJugador) . " barcos");
+error_log("Flota Enemigo: " . count($flotaEnemigo) . " barcos");
+error_log("Disparos: " . count($disparos) . " registros");
+
+// Pasar el estado a JavaScript
+echo "<script>const estadoTablero = " . json_encode($estadoTablero) . ";</script>";
 ?>
 
 <!DOCTYPE html>
@@ -39,32 +71,34 @@ $usuario = $_SESSION["usuario"];
     <link rel="stylesheet" href="../assets/css/styles.css?v=<?php echo time(); ?>" />
 </head>
 
-<body class="body-inicio-juego">
+<body class="body-batalla-juego">
+<div class="header-bar-batalla">
+  <a href="menuJuego.php" class="header-btn-batalla">Salir</a>
 
-<!-- =============================== -->
-<!-- PANEL SUPERIOR -->
-<!-- =============================== -->
-<div class="header-bar">
-
-    <a href="menuJuego.php" class="header-btn">Salir</a>
-
-    <div class="captain-panel">
-        <img src="../assets/img/imagenes/capitan.png" class="captain-img" />
-        <div class="attaker-con">
-            <p class="attacker-text0">Capitán:</p>
-            <p class="captain-text">¡Almirante <?php echo htmlspecialchars($usuario); ?>!</p>
-        </div>
+  <div class="captain-panel-batalla">
+    <img src="../assets/img/imagenes/capitan.png" class="captain-img-batalla" />
+    <div class="attaker-con-batalla">
+      <p class="attacker-text0-batalla">Capitán:</p>
+      <p class="captain-text-batalla">¡Almirante <?php echo htmlspecialchars($usuario); ?>!</p>
     </div>
+  </div>
 
-    <div class="attacker-panel">
-       <img id="almirante-img" class="attacker-img" />
-        <div class="attaker-con">
-            <p class="attacker-text0">Contrincante:</p>
-            <p id="almirante-nombre" class="attacker-text">
-                <?php echo htmlspecialchars($oponente); ?>
-            </p>
-        </div>
+  <div class="attacker-panel-batalla">
+    <img id="almirante-img" class="attacker-img-batalla" />
+    <div class="attaker-con-batalla">
+      <p class="attacker-text0-batalla">Enemigo:</p>
+      <p id="almirante-nombre" class="attacker-text-batalla">
+        <?php echo htmlspecialchars($oponente); ?>
+      </p>
     </div>
+  </div>
+
+  <button id="guardarPartida" class="header-btn-batalla">Guardar partida</button>
+</div>
+
+
+<input type="hidden" id="idPartida" value="<?php echo $_GET['id']; ?>">
+
 
 </div>
 
@@ -82,7 +116,7 @@ $usuario = $_SESSION["usuario"];
     <!-- TABLERO DEL ENEMIGO -->
     <div class="enemy-board-wrapper">
         <div class="enemy-grid">
-
+            <h2 class="board-title">Flota Enemiga</h2>
             <div class="enemy-board-with-ships" id="enemy-wrapper">
                 <div id="enemy-board" class="board-grid-enemy"></div>
                 <div id="enemy-ships-layer" class="ships-layer"></div>
@@ -95,12 +129,17 @@ $usuario = $_SESSION["usuario"];
 </div>
 
 <div id="mensaje" class="mensaje"></div>
-
+<script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    const idPartidaInput = document.getElementById("idPartida");
+    const idPartida = idPartidaInput ? idPartidaInput.value : null;
+    
+    console.log("ID Partida cargado:", idPartida, "Tipo:", typeof idPartida);
 
     const flotaJugador = <?php echo json_encode($flotaJugador); ?> || [];
     const flotaEnemigo = <?php echo json_encode($flotaEnemigo); ?> || [];
+    const disparos = <?php echo json_encode($disparos); ?> || [];
     const playerBoard = document.getElementById("board-player");
     const enemyBoard = document.getElementById("enemy-board");
     const letters = "ABCDEFGHIJ";
@@ -134,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for(let y=0;y<10;y++){
         for(let x=0;x<10;x++){
             const cell = document.createElement("div");
-            cell.classList.add("cell-player");
+            cell.classList.add("cell-player-batalla");
             cell.dataset.x = x+1;
             cell.dataset.y = y+1;
             cell.dataset.col = letters[x];
@@ -178,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for(let y=0;y<10;y++){
         for(let x=0;x<10;x++){
             const cell = document.createElement("div");
-            cell.classList.add("cell-enemy");
+            cell.classList.add("cell-enemy-batalla");
             cell.dataset.x = x+1;
             cell.dataset.y = y+1;
             cell.dataset.col = letters[x];
@@ -195,6 +234,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+   
+
     // ==========================
     // FUNCIONES
     // ==========================
@@ -206,7 +247,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function mostrarMensajeCapitan(text){
-        const capText = document.querySelector(".captain-text");
+        const capText = document.querySelector(".captain-text-batalla");
+
         capText.textContent = text;
     }
 
@@ -244,64 +286,107 @@ document.addEventListener("DOMContentLoaded", () => {
     const overlay = document.getElementById("enemy-overlay");
     overlay.innerHTML = "";
 
-    for(let y=1; y<=10; y++){
-        for(let x=1; x<=10; x++){
+    for (let y = 1; y <= 10; y++) {
+        for (let x = 1; x <= 10; x++) {
             const btn = document.createElement("div");
             btn.classList.add("overlay-cell");
             btn.dataset.x = x;
             btn.dataset.y = y;
 
+            // ===== Restaurar disparos previos =====
+            const disparoPrevio = disparos.find(d => d.posX === x && d.posY === y);
+            if (disparoPrevio) {
+                const celdaReal = document.getElementById(`enemy-${x}-${y}`);
+                celdaReal.dataset.disparado = "true";
+
+                const layer = document.getElementById("enemy-ships-layer");
+
+                if (disparoPrevio.resultado === "tocado" || disparoPrevio.resultado === "hundido") {
+                    const fuego = document.createElement("div");
+                    fuego.classList.add("fire-hit-cell");
+                    const cellSize = 40, gap = 3;
+                    fuego.style.left = (x-1)*(cellSize+gap) + "px";
+                    fuego.style.top = (y-1)*(cellSize+gap) + "px";
+                    fuego.style.width = cellSize + "px";
+                    fuego.style.height = cellSize + "px";
+                    fuego.innerHTML = "💥";
+                    layer.appendChild(fuego);
+                } else {
+                    celdaReal.classList.add("miss");
+                }
+            }
+
             btn.addEventListener("click", () => {
-    if(turno !== "jugador"){
+    if (turno !== "jugador") {
         mostrarMensajeCapitan("¡Espere su turno, almirante!");
         return;
     }
 
     const celdaReal = document.getElementById(`enemy-${x}-${y}`);
-    if(celdaReal.dataset.disparado === "true") return;
+    if (celdaReal.dataset.disparado === "true") return;
 
-    celdaReal.dataset.disparado = "true"; // registrar disparo
+    celdaReal.dataset.disparado = "true"; 
     btn.classList.add("revealed");
 
     const ocupado = celdaReal.dataset.occupied === "true";
     const barco = celdaReal.dataset.ship || null;
-
     const layer = document.getElementById("enemy-ships-layer");
 
-    if(ocupado){
-        // Crear fuego dentro de la capa ships-layer, sobre la celda tocada
+    if (ocupado) {
         const fuego = document.createElement("div");
         fuego.classList.add("fire-hit-cell");
-
-        // calcular posición absoluta relativa a layer
-        const cellSize = 40;
-        const gap = 3;
+        const cellSize = 40, gap = 3;
         fuego.style.left = (x-1)*(cellSize+gap) + "px";
         fuego.style.top  = (y-1)*(cellSize+gap) + "px";
         fuego.style.width = cellSize + "px";
         fuego.style.height = cellSize + "px";
-        fuego.innerHTML = "🔥";
-
+        fuego.innerHTML = "💥";
         layer.appendChild(fuego);
 
         mostrarMensajeCapitan(`¡Impacto en ${celdaReal.dataset.col}${celdaReal.dataset.row}!`);
 
-        // Verificar si el barco ha sido hundido
         const todasCeldas = Array.from(document.querySelectorAll(`.cell-enemy[data-ship='${barco}']`));
         const hundido = todasCeldas.every(c => c.dataset.disparado === "true");
-        if(hundido){
+        if (hundido) {
             mostrarMensajeCapitan(`¡Almirante! Hemos hundido el ${barco} enemigo!`);
         }
-
     } else {
         celdaReal.classList.add("miss");
         mostrarMensajeCapitan(`Agua en ${celdaReal.dataset.col}${celdaReal.dataset.row}`);
     }
 
+    // ===== DEBUG: Ver qué datos se envían =====
+    const datosDisparo = {
+        idPartida: idPartida,
+        propietario: "jugador",
+        x: x,
+        y: y,
+        resultado: ocupado ? "tocado" : "agua"
+    };
+    
+    console.log("Enviando disparo:", datosDisparo);
+    console.log("Tipo de idPartida:", typeof idPartida, "Valor:", idPartida);
+
+    // ===== Guardar disparo en BD =====
+    fetch("../php/guardarDisparo.php", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datosDisparo)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Respuesta del servidor:", data);
+        if (data.error) {
+            console.error("Error al guardar disparo:", data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Error en fetch:", error);
+    });
+
     turno = "enemigo";
     setTimeout(turnoEnemigo, 1200);
 });
-
 
             overlay.appendChild(btn);
         }
@@ -309,33 +394,52 @@ document.addEventListener("DOMContentLoaded", () => {
 }
 
 
+
+ 
     function turnoEnemigo(){
-        mostrarMensajeCapitan("El enemigo está disparando…");
-        let x,y,celda;
-        do{
-            x = Math.floor(Math.random()*10)+1;
-            y = Math.floor(Math.random()*10)+1;
-            celda=document.getElementById(`player-${x}-${y}`);
-        } while(celda.classList.contains("disparado"));
+    mostrarMensajeCapitan("El enemigo está disparando…");
+    let x,y,celda;
 
-        celda.classList.add("disparado");
-        const ocupado = celda.dataset.occupied==="true";
+    do{
+        x = Math.floor(Math.random()*10)+1;
+        y = Math.floor(Math.random()*10)+1;
+        celda=document.getElementById(`player-${x}-${y}`);
+    } while(celda.classList.contains("disparado"));
 
-        if(ocupado){
-            celda.classList.add("hit-player");
-            celda.innerHTML="🔥";
-            mostrarMensajeCapitan(`¡Almirante! Han tocado nuestro ${celda.dataset.ship}!`);
-        } else{
-            celda.classList.add("miss-player");
-            celda.innerHTML="⭕";
-            mostrarMensajeCapitan("El enemigo ha fallado.");
-        }
+    celda.classList.add("disparado");
+    const ocupado = celda.dataset.occupied==="true";
 
-        turno="jugador";
-        mostrarMensajeCapitan("Es su turno, almirante.");
+    if(ocupado){
+        celda.classList.add("hit-player");
+        celda.innerHTML="💥";
+        mostrarMensajeCapitan(`¡Almirante! Han tocado nuestro ${celda.dataset.ship}!`);
+    } else{
+        celda.classList.add("miss-player");
+        celda.innerHTML="🟦";
+        mostrarMensajeCapitan("El enemigo ha fallado.");
     }
 
-    function sorteoInicial(){
+    // ===== Guardar disparo enemigo =====
+    fetch("../php/guardarDisparo.php", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            idPartida: parseInt(document.getElementById("idPartida").value),
+            propietario: "enemigo",
+            x: x,
+            y: y,
+            resultado: ocupado ? "tocado" : "agua"
+        })
+    })
+    .then(r => r.json())
+    .then(data => console.log("Disparo enemigo guardado:", data))
+    .catch(err => console.error("Error guardando disparo enemigo:", err));
+
+    turno="jugador";
+    mostrarMensajeCapitan("Es su turno, almirante.");
+}
+
+function sorteoInicial(){
         if(partidaIniciada) return;
         const empiezaJugador = Math.random()<0.5;
         turno = empiezaJugador?"jugador":"enemigo";
@@ -350,13 +454,145 @@ document.addEventListener("DOMContentLoaded", () => {
         partidaIniciada=true;
     }
 
+
+   // ==========================
+// INICIALIZACION
+// ==========================
+colocarBarcosEnemigos(flotaEnemigo);
+crearOverlayDisparos();
+// Restaurar disparos del jugador
+restaurarDisparosJugador(disparos.filter(d => d.propietario === "jugador"));
+sorteoInicial();
+
     // ==========================
-    // INICIALIZACION
+    // BOTÓN GUARDAR PARTIDA - SOLO UNA VEZ
     // ==========================
-    colocarBarcosEnemigos(flotaEnemigo);
-    crearOverlayDisparos();
-    sorteoInicial();
+    document.getElementById("guardarPartida").addEventListener("click", async () => {
+        const idPartida = document.getElementById("idPartida").value;
+
+        // Recolectar estado actual de los disparos
+        const estadoActual = {
+            // Disparos del jugador
+            disparosJugador: Array.from(document.querySelectorAll('.cell-enemy[data-disparado="true"]')).map(celda => ({
+                x: parseInt(celda.dataset.x),
+                y: parseInt(celda.dataset.y),
+                resultado: celda.classList.contains('miss') ? 'agua' : 'tocado'
+            })),
+            // Disparos del enemigo  
+            disparosEnemigo: Array.from(document.querySelectorAll('.cell-player.disparado')).map(celda => ({
+                x: parseInt(celda.dataset.x),
+                y: parseInt(celda.dataset.y),
+                resultado: celda.classList.contains('hit-player') ? 'tocado' : 'agua'
+            })),
+            turnoActual: turno,
+            partidaIniciada: partidaIniciada
+        };
+
+        try {
+            const respuesta = await fetch("../php/guardarProgreso.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    idPartida: parseInt(idPartida),
+                    flotaJugador: flotaJugador,
+                    flotaEnemigo: flotaEnemigo,
+                    estadoTablero: estadoActual  // Guardar el estado actual
+                })
+            });
+
+            const data = await respuesta.json();
+            console.log("Respuesta guardado:", data);
+
+            if (data.ok) {
+                mostrarMensaje("Partida guardada correctamente");
+            } else {
+                mostrarMensaje("Error al guardar: " + (data.error || "Desconocido"), true);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            mostrarMensaje("Error de conexión al guardar", true);
+        }
+    });
+
+    // ==========================
+    // RESTAURAR DISPAROS PREVIOS
+    // ==========================
+    disparos.forEach(d => {
+    const x = d.posX;
+    const y = d.posY;
+
+    if(d.propietario === "jugador"){ 
+        const celda = document.getElementById(`enemy-${x}-${y}`);
+        if (!celda) return;
+
+        celda.dataset.disparado = "true";
+        const layer = document.getElementById("enemy-ships-layer");
+
+        if(d.resultado === "tocado" || d.resultado === "hundido"){
+            const fuego = document.createElement("div");
+            fuego.classList.add("fire-hit-cell");
+            const cellSize = 40, gap = 3;
+            fuego.style.left = (x-1)*(cellSize+gap) + "px";
+            fuego.style.top = (y-1)*(cellSize+gap) + "px";
+            fuego.style.width = cellSize + "px";
+            fuego.style.height = cellSize + "px";
+            fuego.innerHTML = "💥";
+            layer.appendChild(fuego);
+        } else {
+            celda.classList.add("miss");
+        }
+    }
+    else {
+        const celda = document.getElementById(`player-${x}-${y}`);
+        if (!celda) return;
+
+        celda.classList.add("disparado");
+
+        if(d.resultado === "tocado" || d.resultado === "hundido"){
+            celda.classList.add("hit-player");
+            celda.innerHTML = "💥";
+        } else {
+            celda.classList.add("miss-player");
+            celda.innerHTML = "🟦";
+        }
+    }
 });
+
+function restaurarDisparosJugador(disparosJugador){
+    disparosJugador.forEach(d => {
+        const x = d.posX;
+        const y = d.posY;
+
+        // Overlay cell
+        const overlayCell = document.querySelector(`#enemy-overlay .overlay-cell[data-x="${x}"][data-y="${y}"]`);
+        if(!overlayCell) return;
+
+        // Marcar como disparado (transparente)
+        overlayCell.classList.add("revealed");
+
+        // Mostrar fuego o agua
+        if(d.resultado === "tocado" || d.resultado === "hundido"){
+            overlayCell.innerHTML = "💥";
+            overlayCell.style.color = "yellow";
+            overlayCell.style.fontSize = "24px";
+            overlayCell.style.display = "flex";
+            overlayCell.style.justifyContent = "center";
+            overlayCell.style.alignItems = "center";
+        } else {
+            overlayCell.innerHTML = "";
+            overlayCell.style.color = "white";
+            overlayCell.style.fontSize = "16px";
+            overlayCell.style.display = "flex";
+            overlayCell.style.justifyContent = "center";
+            overlayCell.style.alignItems = "center";
+        }
+    });
+}
+
+
+
+});
+
 </script>
 
 </body>

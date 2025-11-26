@@ -17,6 +17,25 @@ $stmt->execute();
 $result = $stmt->get_result();
 $usuario = $result->fetch_assoc();
 
+// Cargar partidas guardadas
+$stmt2 = $conexion->prepare("
+    SELECT idPartida, fecha, estado
+    FROM partidas
+    WHERE nombreUsuario = ?
+      AND estado <> 'finalizada'
+    ORDER BY fecha DESC
+");
+$stmt2->bind_param("s", $nombreUsuario);
+$stmt2->execute();
+$partidasGuardadas = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
+
+// Saber si hay partidas guardadas
+$hayPartidas = !empty($partidasGuardadas);
+
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -57,10 +76,52 @@ $usuario = $result->fetch_assoc();
       </div>
     </header>
 
+   <!-- MODAL CARGAR PARTIDA -->
+<div id="modalCargar" class="modal oculto">
+  <div class="modal__contenido">
+    <h2 class="modal__titulo">⛴️ Cargar Partida ⛴️</h2>
+
+    <?php if ($hayPartidas): ?>
+      <ul class="modal__lista">
+        <?php foreach ($partidasGuardadas as $p): ?>
+          <li class="modal__item">
+            <span>Partida #<?php echo $p["idPartida"]; ?></span>
+            <small>
+              <strong>Estado:</strong> <?php echo ucfirst($p["estado"]); ?><br>
+              <strong>Fecha:</strong> <?php echo date('d/m/Y H:i', strtotime($p["fecha"])); ?>
+            </small>
+            
+            <a href="batalla.php?id=<?php echo $p['idPartida']; ?>" 
+              class="modal__btn modal__btn--ok"
+              onclick="console.log('Cargando partida ID: <?php echo $p['idPartida']; ?>')">
+              Continuar Partida
+            </a>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    <?php else: ?>
+      <p class="modal__texto">No tienes partidas guardadas.<br>¡Inicia una nueva partida!</p>
+    <?php endif; ?>
+
+    <div class="modal__botones">
+      <button id="cerrarModalCargar" class="modal__btn modal__btn--cancel">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="menu__contenedor">
       <section class="menu__opciones">
+        <a href="#" 
+          class="menu__btn <?php echo !$hayPartidas ? 'btn--disabled' : ''; ?>" 
+          id="btnCargarPartida"
+          <?php echo !$hayPartidas ? 'disabled' : ''; ?>>
+          Cargar Partida
+        </a>
+
         <a href="inicioJuego.php" class="menu__btn">Hundir la Flota</a>
         <a href="#" class="menu__btn">Ranking</a>
         <a href="settings.php" class="menu__btn">Settings</a>
@@ -90,5 +151,46 @@ $usuario = $result->fetch_assoc();
     </footer>
     
     <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
+ <script>
+// Debug temporal - eliminar después de probar
+/*console.log("=== DEBUG RÁPIDO ===");
+console.log("btnCargarPartida encontrado:", !!document.getElementById('btnCargarPartida'));
+console.log("modalCargar encontrado:", !!document.getElementById('modalCargar'));
+console.log("modalCargar tiene clase oculto:", document.getElementById('modalCargar')?.classList.contains('oculto'));
+
+// Probar manualmente desde consola: testModal()
+window.testModal = function() {
+    const modal = document.getElementById('modalCargar');
+    if (modal) {
+        console.log("✅ Abriendo modal manualmente");
+        modal.classList.remove('oculto');
+        return "Modal abierto";
+    }
+    return "❌ Modal no encontrado";
+};
+
+// Test automático
+setTimeout(() => {
+    console.log("--- TEST AUTOMÁTICO ---");
+    const btn = document.getElementById('btnCargarPartida');
+    const modal = document.getElementById('modalCargar');
+    
+    if (btn && modal) {
+        console.log("✅ Elementos encontrados");
+        console.log("🔘 Botón deshabilitado?", btn.hasAttribute('disabled'));
+        console.log("📦 Modal oculto?", modal.classList.contains('oculto'));
+        
+        // Simular click si no está deshabilitado
+        if (!btn.hasAttribute('disabled')) {
+            console.log("🖱️ Simulando click...");
+            btn.click();
+        } else {
+            console.log("⏸️ Botón deshabilitado - no se simula click");
+        }
+    } else {
+        console.error("❌ No se encontraron elementos para test");
+    }
+}, 1000);*/
+</script>
   </body>
 </html>

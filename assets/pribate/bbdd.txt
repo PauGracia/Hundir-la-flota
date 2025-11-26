@@ -1,0 +1,78 @@
+-- create_hundir_flota.sql
+-- Crea la base de datos y las tablas para "hundir_flota"
+DROP DATABASE IF EXISTS `hundir_flota`;
+CREATE DATABASE `hundir_flota` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `hundir_flota`;
+
+-- Tabla: almirantes
+DROP TABLE IF EXISTS `almirantes`;
+CREATE TABLE `almirantes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nombreAlmirante` varchar(75) NOT NULL,
+  `imagenAlmirante` varchar(100) DEFAULT NULL,
+  `victorias` int DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla: usuario
+DROP TABLE IF EXISTS `usuario`;
+CREATE TABLE `usuario` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nombreUsuario` varchar(50) NOT NULL,
+  `pass` varchar(255) NOT NULL,
+  `imagenPerfil` varchar(255) DEFAULT 'assets/img/default-avatar.png',
+  `fecha` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `victorias` int DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_nombreUsuario` (`nombreUsuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla: partidas
+DROP TABLE IF EXISTS `partidas`;
+CREATE TABLE `partidas` (
+  `idPartida` int NOT NULL AUTO_INCREMENT,
+  `nombreUsuario` varchar(50) NOT NULL,
+  `nombreOponente` varchar(50) DEFAULT NULL,
+  `idAlmirante` int DEFAULT NULL,
+  `estado` enum('colocando','batalla','finalizada') DEFAULT 'colocando',
+  `ganador` varchar(50) DEFAULT NULL,
+  `puntos` int DEFAULT 0,
+  `fecha` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `flotaJugador` text,
+  `flotaEnemigo` text,
+  PRIMARY KEY (`idPartida`),
+  KEY `idx_partidas_nombreUsuario` (`nombreUsuario`),
+  KEY `idx_partidas_idAlmirante` (`idAlmirante`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla: barcos
+DROP TABLE IF EXISTS `barcos`;
+CREATE TABLE `barcos` (
+  `idBarco` int NOT NULL AUTO_INCREMENT,
+  `idPartida` int NOT NULL,
+  `propietario` enum('jugador','enemigo') DEFAULT NULL,
+  `tipoBarco` enum('portaaviones','acorazado','destructor','fragata','corbeta') DEFAULT NULL,
+  `size` int NOT NULL,
+  `ancho` int NOT NULL,
+  `alto` int NOT NULL,
+  `orientacion` enum('horizontal','vertical') NOT NULL,
+  `xInicio` int NOT NULL,
+  `yInicio` int NOT NULL,
+  `danio` int DEFAULT 0,
+  PRIMARY KEY (`idBarco`),
+  KEY `idx_barcos_idPartida` (`idPartida`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla: disparos
+DROP TABLE IF EXISTS `disparos`;
+CREATE TABLE `disparos` (
+  `idDisparo` int NOT NULL AUTO_INCREMENT,
+  `idPartida` int NOT NULL,
+  `propietario` enum('jugador','enemigo') DEFAULT NULL,
+  `posX` int NOT NULL,
+  `posY` int NOT NULL,
+  `resultado` enum('agua','tocado','hundido') DEFAULT NULL,
+  PRIMARY KEY (`idDisparo`),
+  KEY `idx_disparos_idPartida` (`idPartida`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
