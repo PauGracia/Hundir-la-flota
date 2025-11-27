@@ -92,7 +92,7 @@ echo "<script>const estadoTablero = " . json_encode($estadoTablero) . ";</script
   <a href="menuJuego.php" class="header-btn-batalla">Salir</a>
 
   <!-- Panel jugador -->
-  <div id="player-header-panel" class="attacker-panel-batalla">
+  <div id="player-header-panel" class="player-panel-batalla">
       <img class="attacker-img-batalla" 
            src="../assets/img/perfiles/<?php echo htmlspecialchars($usuario['imagenPerfil'] ?? 'default-avatar.jpg'); ?>" 
            alt="Perfil">
@@ -128,10 +128,11 @@ echo "<script>const estadoTablero = " . json_encode($estadoTablero) . ";</script
 <div class="battle-container">
     <!-- IZQUIERDA: Panel jugador + tablero -->
     <div class="player-section">
+        <h2 class="board-title">La Flota</h2>
         <div class="captain-panel-wrapper">
             <!-- Imagen del capitán -->
             <img src="../assets/img/imagenes/capitan.png" class="captain-img-batalla" alt="Capitán" />
-
+            <p class="attacker-text0-batalla">Capitan:</p>
             <!-- Mensajes del juego -->
             <div id="mensajes-juego" class="mensajes-juego"></div>
              <!-- Tablero del jugador -->
@@ -274,19 +275,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const mensajesJuego = [];
 
-function mostrarMensajeCapitan(text){
-    mensajesJuego.push(text);
-    if(mensajesJuego.length > 3) mensajesJuego.shift(); // mantener últimos 3
+    const MAX_MESSAGES = 4;
 
-    const contenedor = document.getElementById("mensajes-juego");
-    contenedor.innerHTML = mensajesJuego.map(m => `<p>${m}</p>`).join("");
-}
+    function mostrarMensajeCapitan(text){
+        // añade mensaje al array
+        mensajesJuego.push(text);
+
+        // mantener sólo los últimos MAX_MESSAGES (los más recientes)
+        while (mensajesJuego.length > MAX_MESSAGES) {
+            mensajesJuego.shift(); // quita el más antiguo
+        }
+
+        const contenedor = document.getElementById("mensajes-juego");
+        if(!contenedor) return;
+
+        // Queremos mostrar el más reciente arriba: renderizamos el array en orden inverso
+        const html = mensajesJuego.slice().map(m => `<p class="msg-line">${m}</p>`).join("");
+        contenedor.innerHTML = html;
+    }
 
 
     function actualizarTurno(turnoActual){
     const playerHeader = document.getElementById("player-header-panel");
     const attackerHeader = document.getElementById("attacker-header-panel");
-
+ 
+ 
+    // Limpia los bordes
+    playerHeader.classList.remove("turno");
+    attackerHeader.classList.remove("turno");
+    
+    
     if(turnoActual === "jugador"){
         playerHeader.classList.add("turno");
         attackerHeader.classList.remove("turno");
@@ -541,6 +559,8 @@ function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
 
     turno="jugador";
     mostrarMensajeCapitan("Es su turno, almirante.");
+    actualizarTurno("jugador");
+
 }
 
 function sorteoInicial(){
