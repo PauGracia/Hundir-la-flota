@@ -14,7 +14,10 @@ $data = json_decode(file_get_contents("php://input"), true);
 $idPartida = $data["idPartida"] ?? null;
 $flotaJugador = json_encode($data["flotaJugador"] ?? []);
 $flotaEnemigo = json_encode($data["flotaEnemigo"] ?? []);
-$estadoTablero = json_encode($data["estadoTablero"] ?? []); 
+$estadoTablero = json_encode($data["estadoTablero"] ?? []);
+$puntos = $data["puntos"] ?? 0;
+$tiempo = $data["tiempo"] ?? 0;
+
 if (!$idPartida) {
     echo json_encode(["error" => "ID de partida no recibido"]);
     exit;
@@ -36,11 +39,24 @@ if ($result->num_rows === 0) {
 // Actualizar partida con estado completo
 $stmt = $conexion->prepare("
     UPDATE partidas 
-    SET flotaJugador = ?, flotaEnemigo = ?, estadoTablero = ?, estado = 'batalla'
+    SET flotaJugador = ?, 
+        flotaEnemigo = ?, 
+        estadoTablero = ?, 
+        puntos = ?, 
+        tiempo = ?, 
+        estado = 'batalla'
     WHERE idPartida = ? AND nombreUsuario = ?
 ");
 
-$stmt->bind_param("sssis", $flotaJugador, $flotaEnemigo, $estadoTablero, $idPartida, $usuario);
+$stmt->bind_param("sssiiis", 
+    $flotaJugador, 
+    $flotaEnemigo, 
+    $estadoTablero, 
+    $puntos, 
+    $tiempo, 
+    $idPartida, 
+    $usuario
+);
 
 if ($stmt->execute()) {
     echo json_encode(["ok" => true, "message" => "Partida guardada correctamente"]);

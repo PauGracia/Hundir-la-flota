@@ -50,6 +50,9 @@ $stmt2 = $conexion->prepare("SELECT * FROM disparos WHERE idPartida=?");
 $stmt2->bind_param("i", $idPartida);
 $stmt2->execute();
 $disparos = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
+$puntos = $partida["puntos"] ?? 0;
+$tiempo = $partida["tiempo"] ?? 0;
+
 
 // Estado guardado del tablero
 $estadoTablero = [];
@@ -67,7 +70,13 @@ error_log("Flota Enemigo: " . count($flotaEnemigo) . " barcos");
 error_log("Disparos: " . count($disparos) . " registros");
 
 // Pasar el estado a JavaScript
-echo "<script>const estadoTablero = " . json_encode($estadoTablero) . ";</script>";
+
+echo "<script>
+    estadoTablero = " . json_encode($estadoTablero) . ";
+    puntos = " . json_encode($puntos) . ";
+    tiempo = " . json_encode($tiempo) . ";
+</script>";
+
 ?>
 
 
@@ -144,15 +153,23 @@ echo "<script>const estadoTablero = " . json_encode($estadoTablero) . ";</script
 
     <!-- DERECHA: Panel enemigo + tablero -->
     <div class="enemy-board-wrapper">
-        <div class="scoreboard" id="score-enemy">Puntos: 0</div>
+        
         <h2 class="board-title">Flota Enemiga</h2>
         <div class="enemy-board-with-ships" id="enemy-wrapper">
             <div id="enemy-board" class="board-grid-enemy"></div>
             <div id="enemy-ships-layer" class="ships-layer"></div>
             <div id="enemy-overlay" class="overlay-grid"></div>
         </div>
+        <div class="score-timer-row">
+        <div class="scoreboard" id="score-enemy">Puntos: 0</div>
+        <div class="timerboard" id="timer-enemy">Tiempo: 0s</div>
     </div>
+    </div>
+    <!-- MARCADOR + TEMPORIZADOR (ABAJO) -->
+    
 </div>
+
+
 
 
 <div id="mensaje" class="mensaje"></div>
@@ -171,11 +188,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     const enemyBoard = document.getElementById("enemy-board");
     const letters = "ABCDEFGHIJ";
 
+    //  AÑADIR AQUÍ MISMO
+    let puntos = <?php echo json_encode($puntos ?? 0); ?>;
+    document.getElementById("score-enemy").textContent = "Puntos: " + puntos;
+
+    let tiempo = <?php echo json_encode($tiempo ?? 0); ?>;
+    document.getElementById("timer-enemy").textContent = "Tiempo: " + tiempo + "s";
+
+
     let matrizJugador = Array.from({ length: 10 }, () => Array(10).fill(null));
     let matrizEnemigo = Array.from({ length: 10 }, () => Array(10).fill(null));
 
     let turno = null; // "jugador" o "enemigo"
     let partidaIniciada = false;
+
+    // Temporizador
+    
+    setInterval(() => {
+        tiempo++;
+        document.getElementById("timer-enemy").textContent = "Tiempo: " + tiempo + "s";
+    }, 1000);
+
 
     // ==========================
     // TABLERO DEL JUGADOR
@@ -315,8 +348,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 }
 
 
-let puntos = 0;
-
 function actualizarPuntos(resultado){
     if(resultado === "tocado") puntos += 100;
     else if(resultado === "hundido") puntos += 1000;
@@ -424,6 +455,8 @@ function finalizarPartida(ganador){
     }
 }
 
+
+
 // Función separada para manejar disparos
 function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
     if (turno !== "jugador") {
@@ -511,11 +544,22 @@ function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
         console.error("Error en fetch:", error);
     });
 
+    
+    // Verificar si todos los barcos enemigos están hundidos
+    const todasCeldasEnemigo = Array.from(document.querySelectorAll('.cell-enemy-batalla[data-occupied="true"]'));
+    const todosHundidos = todasCeldasEnemigo.every(c => c.dataset.disparado === "true");
+
+    if(todosHundidos){
+        finalizarPartida(usuario.nombreUsuario); // El jugador ganó
+        return; // Salir para no continuar con el turno enemigo
+    }
+
     // Cambiar turno
     turno = "enemigo";
     actualizarTurno(turno);
-    setTimeout(turnoEnemigo, 1200);
-}
+    setTimeout(turnoEnemigo, 2200);
+
+    }
 
  
     function turnoEnemigo(){
@@ -557,6 +601,14 @@ function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
     .then(data => console.log("Disparo enemigo guardado:", data))
     .catch(err => console.error("Error guardando disparo enemigo:", err));
 
+    // Verificar si todos los barcos del jugador están hundidos
+    const todasCeldasJugador = Array.from(document.querySelectorAll('.cell-player-batalla[data-occupied="true"]'));
+    const todosHundidosJugador = todasCeldasJugador.every(c => c.classList.contains("disparado"));
+
+    if(todosHundidosJugador){
+        finalizarPartida("Enemigo"); // El jugador perdió
+        return;
+    }
     turno="jugador";
     mostrarMensajeCapitan("Es su turno, almirante.");
     actualizarTurno("jugador");
@@ -577,6 +629,37 @@ function sorteoInicial(){
 
         partidaIniciada=true;
     }
+
+
+    function finalizarPartida(ganador) {
+    // Guardar partida primero
+    fetch("../php/guardarProgreso.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            idPartida: parseInt(document.getElementById("idPartida").value),
+            puntos: puntos,
+            estadoTablero: estadoTablero
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        console.log("Partida guardada:", data);
+
+        // Después redirigir a la pantalla de resultado
+        let tipoResultado = (ganador === usuario.nombreUsuario) ? 'victoria' : 'derrota';
+        let nombreRival = (ganador === usuario.nombreUsuario) ? usuario.nombreUsuario : ganador;
+        let fotoRival = (ganador === usuario.nombreUsuario) ? usuario.imagenPerfil : 'default-avatar.jpg'; // o la del atacante si la tienes
+
+        // Redirigir
+        window.location.href = `resultado.php?tipo=${tipoResultado}&nombre=${encodeURIComponent(nombreRival)}&foto=${encodeURIComponent(fotoRival)}`;
+    })
+    .catch(err => {
+        console.error("Error guardando partida:", err);
+        alert("Error al guardar la partida antes de finalizar.");
+    });
+}
+
 
 
     /*function debugOverlay() {
@@ -640,7 +723,9 @@ sorteoInicial();
                     idPartida: parseInt(idPartida),
                     flotaJugador: flotaJugador,
                     flotaEnemigo: flotaEnemigo,
-                    estadoTablero: estadoActual  // Guardar el estado actual
+                    estadoTablero: estadoActual,  // Guardar el estado actual
+                    puntos: puntos,
+                    tiempo: tiempo
                 })
             });
 
@@ -733,9 +818,16 @@ function restaurarDisparosJugador(disparosJugador){
     });
 }
 
+//////////////////////////////////////////////////////
 
+
+
+
+////////////////////////////////////////////////////////
 
 });
+
+
 
 </script>
 

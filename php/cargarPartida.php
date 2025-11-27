@@ -31,5 +31,7 @@ echo json_encode([
     "flotaJugador"   => json_decode($partida["flotaJugador"], true),
     "flotaEnemigo"   => json_decode($partida["flotaEnemigo"], true),
     "estadoTablero"  => isset($partida["estadoTablero"]) ? json_decode($partida["estadoTablero"], true) : [],
-    "disparos"       => $disparos
+    "disparos"       => $disparos,
+    "puntos" => $partida["puntos"],
+    "tiempo" => $partida["tiempo"]
 ]);
