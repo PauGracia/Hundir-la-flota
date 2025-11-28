@@ -6,10 +6,12 @@ if (!isset($_SESSION["usuario"])) {
     exit;
 }
 
+// Leer datos desde la sesión si los tienes, o desde GET
 $tipo = $_GET['tipo'] ?? 'victoria'; // victoria por defecto
 $nombre = $_GET['nombre'] ?? $_SESSION['usuario'];
 $foto = $_GET['foto'] ?? 'default-avatar.jpg';
 
+// Fondo según el resultado
 if ($tipo === 'victoria') {
     $mensaje = '¡Victoria!';
     $fondo = 'victoria.jpg';
@@ -17,6 +19,7 @@ if ($tipo === 'victoria') {
     $mensaje = "Has sido derrotado por $nombre";
     $fondo = 'derrota.png';
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -26,11 +29,8 @@ if ($tipo === 'victoria') {
 <title><?php echo ucfirst($tipo); ?></title>
 <link rel="stylesheet" href="../assets/css/styles.css?v=<?php echo time(); ?>">
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../assets/css/styles.css?v=<?php echo time(); ?>" />
-
 </head>
-<body-resultado>
-
+<body class="body-resultado" style="background: url('../assets/img/imagenes/<?php echo $fondo; ?>') no-repeat center center fixed; background-size: cover;">
 <div class="result-container-resultado">
     <h1><?php echo $mensaje; ?></h1>
     <img src="../assets/img/perfiles/<?php echo htmlspecialchars($foto); ?>" alt="Avatar">
@@ -40,6 +40,5 @@ if ($tipo === 'victoria') {
         <button onclick="location.href='menuJuego.php'">Menú</button>
     </div>
 </div>
-
-</body-resultado>
+</body>
 </html>

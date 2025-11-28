@@ -97,10 +97,10 @@ body {
   user-select: none;
   white-space: nowrap;
   transition: transform 0.3s ease, text-shadow 0.3s ease;
-  animation: glow 3.5s infinite ease-in-out alternate;
+  animation: glowTiTle 3.5s infinite ease-in-out alternate;
 }
 
-@keyframes glow {
+@keyframes glowTitle {
   from {
     text-shadow: 0 0 12px #4e5459;
   }
@@ -1931,9 +1931,6 @@ body.settings {
   margin: 0;
   padding: 0;
   font-family: "Russo One", Arial, sans-serif;
-  background: url("../img/imagenes/<?php echo $fondo; ?>") no-repeat center
-    center fixed;
-  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;

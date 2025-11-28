@@ -174,6 +174,7 @@ echo "<script>
 
 <div id="mensaje" class="mensaje"></div>
 <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
     const idPartidaInput = document.getElementById("idPartida");
@@ -187,6 +188,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const playerBoard = document.getElementById("board-player");
     const enemyBoard = document.getElementById("enemy-board");
     const letters = "ABCDEFGHIJ";
+
+    const nombreUsuario = <?php echo json_encode($usuario['nombreUsuario']); ?>;
+    const imagenUsuario = <?php echo json_encode($usuario['imagenPerfil']); ?>;
 
     //  AÑADIR AQUÍ MISMO
     let puntos = <?php echo json_encode($puntos ?? 0); ?>;
@@ -550,7 +554,7 @@ function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
     const todosHundidos = todasCeldasEnemigo.every(c => c.dataset.disparado === "true");
 
     if(todosHundidos){
-        finalizarPartida(usuario.nombreUsuario); // El jugador ganó
+        finalizarPartida(nombreUsuario); // El jugador ganó
         return; // Salir para no continuar con el turno enemigo
     }
 
@@ -647,9 +651,9 @@ function sorteoInicial(){
         console.log("Partida guardada:", data);
 
         // Después redirigir a la pantalla de resultado
-        let tipoResultado = (ganador === usuario.nombreUsuario) ? 'victoria' : 'derrota';
-        let nombreRival = (ganador === usuario.nombreUsuario) ? usuario.nombreUsuario : ganador;
-        let fotoRival = (ganador === usuario.nombreUsuario) ? usuario.imagenPerfil : 'default-avatar.jpg'; // o la del atacante si la tienes
+        let tipoResultado = (ganador === nombreUsuario) ? 'victoria' : 'derrota';
+        let nombreRival = (ganador === nombreUsuario) ? nombreUsuario : ganador;
+        let fotoRival = (ganador === nombreUsuario) ? imagenUsuario : 'default-avatar.jpg'; // o la del atacante si la tienes
 
         // Redirigir
         window.location.href = `resultado.php?tipo=${tipoResultado}&nombre=${encodeURIComponent(nombreRival)}&foto=${encodeURIComponent(fotoRival)}`;
@@ -820,6 +824,11 @@ function restaurarDisparosJugador(disparosJugador){
 
 //////////////////////////////////////////////////////
 
+// VForzar victoria Jugador
+//finalizarPartida(nombreUsuario);
+
+// Forzar victoria Enemigo
+//finalizarPartida("Enemigo"); //en proceso
 
 
 
