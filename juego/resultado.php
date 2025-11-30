@@ -20,6 +20,16 @@ if ($tipo === 'victoria') {
     $fondo = 'derrota.png';
 }
 
+// Si es un enemigo, usar la carpeta de almirantes
+// Determinar la ruta correcta
+if ($foto === 'default-avatar.jpg') {
+    $fotoPath = '../assets/img/perfiles/' . $foto; // avatar por defecto
+} elseif (str_starts_with($foto, 'Almirante_')) {
+    $fotoPath = '../assets/img/almirantes/' . $foto; // enemigos
+} else {
+    $fotoPath = '../assets/img/perfiles/' . $foto; // usuarios reales
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -33,12 +43,14 @@ if ($tipo === 'victoria') {
 <body class="body-resultado" style="background: url('../assets/img/imagenes/<?php echo $fondo; ?>') no-repeat center center fixed; background-size: cover;">
 <div class="result-container-resultado">
     <h1><?php echo $mensaje; ?></h1>
-    <img src="../assets/img/perfiles/<?php echo htmlspecialchars($foto); ?>" alt="Avatar">
+    <img src="<?php echo htmlspecialchars($fotoPath); ?>" alt="Avatar">
     <p><?php echo htmlspecialchars($nombre); ?></p>
+
     <div>
         <button onclick="location.href='ranking.php'">Ranking</button>
         <button onclick="location.href='menuJuego.php'">Menú</button>
     </div>
 </div>
+<script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

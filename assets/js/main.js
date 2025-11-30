@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* =====================================================
    SALIR DEL JUEGO
-===================================================== */
+ ===================================================== */
   const btnSalir = document.getElementById("btnSalir");
   const modalSalir = document.getElementById("modalSalir");
   const confirmarSalir = document.getElementById("confirmarSalir");
@@ -437,390 +437,1092 @@ document.addEventListener("DOMContentLoaded", () => {
       window.actualizarVolumenEfectos(vol);
     });
   }
-});
 
-// =========================
-//  SLIDER DE EFECTOS (PUNTO 4)
-// =========================
-const sliderEfectos = document.getElementById("volumenEfectos");
+  // =========================
+  //  SLIDER DE EFECTOS (PUNTO 4)
+  // =========================
+  //const sliderEfectos = document.getElementById("volumenEfectos");
 
-if (sliderEfectos) {
-  sliderEfectos.value = window.volumenEfectos;
+  if (sliderEfectos) {
+    sliderEfectos.value = window.volumenEfectos;
 
-  sliderEfectos.addEventListener("input", () => {
-    const vol = parseFloat(sliderEfectos.value);
-    window.actualizarVolumenEfectos(vol);
-  });
-}
+    sliderEfectos.addEventListener("input", () => {
+      const vol = parseFloat(sliderEfectos.value);
+      window.actualizarVolumenEfectos(vol);
+    });
+  }
 
-/* =====================================================
+  /* =====================================================
    SISTEMA DE MENSAJES
 ===================================================== */
-function mostrarMensaje(texto, tipo = "info") {
-  const mensaje = document.getElementById("mensaje");
-  if (!mensaje) return;
+  function mostrarMensaje(texto, tipo = "info") {
+    const mensaje = document.getElementById("mensaje");
+    if (!mensaje) return;
 
-  mensaje.innerHTML = texto;
-  mensaje.className = `mensaje ${tipo} visible`;
+    mensaje.innerHTML = texto;
+    mensaje.className = `mensaje ${tipo} visible`;
 
-  clearTimeout(mensaje._timeout);
-  mensaje._timeout = setTimeout(() => {
-    mensaje.classList.remove("visible");
-    mensaje.classList.add("oculto");
-  }, 2500);
-}
+    clearTimeout(mensaje._timeout);
+    mensaje._timeout = setTimeout(() => {
+      mensaje.classList.remove("visible");
+      mensaje.classList.add("oculto");
+    }, 2500);
+  }
 
-//****Logica colocación de barcos***** */
+  //****Logica colocación de barcos***** */
 
-const shipsPlaced = []; // Debe ser global
-(function () {
-  const board = document.getElementById("board");
-  if (!board) return;
-  const labelsTop = document.getElementById("labels-top");
-  const labelsLeft = document.getElementById("labels-left");
-  const letters = "ABCDEFGHIJ";
+  const shipsPlaced = []; // Debe ser global
+  (function () {
+    const board = document.getElementById("board");
+    if (!board) return;
+    const labelsTop = document.getElementById("labels-top");
+    const labelsLeft = document.getElementById("labels-left");
+    const letters = "ABCDEFGHIJ";
 
-  let selectedShip = null;
+    let selectedShip = null;
 
-  // Generar tablero
-  for (let row = 1; row <= 10; row++) {
-    for (let col = 0; col < 10; col++) {
-      const cell = document.createElement("div");
-      cell.classList.add("cell");
-      cell.dataset.col = letters[col];
-      cell.dataset.row = row;
+    // Generar tablero
+    for (let row = 1; row <= 10; row++) {
+      for (let col = 0; col < 10; col++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.col = letters[col];
+        cell.dataset.row = row;
 
-      cell.addEventListener("click", () => {
-        if (selectedShip) {
-          placeShip(selectedShip, cell.dataset.col, parseInt(cell.dataset.row));
+        cell.addEventListener("click", () => {
+          if (selectedShip) {
+            placeShip(
+              selectedShip,
+              cell.dataset.col,
+              parseInt(cell.dataset.row)
+            );
+          }
+        });
+
+        board.appendChild(cell);
+      }
+    }
+
+    // Selección de barcos
+    const shipButtons = document.querySelectorAll(".ship-btn");
+
+    shipButtons.forEach((button) => {
+      // Botón rotar
+      button.querySelector(".rotate-btn").addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isVertical = button.classList.contains("vertical");
+
+        const verticalImg = button.querySelector(".vertical-img");
+        const horizontalImg = button.querySelector(".horizontal-img");
+
+        if (isVertical) {
+          button.classList.remove("vertical");
+          button.classList.add("horizontal");
+          verticalImg.style.display = "none";
+          horizontalImg.style.display = "block";
+        } else {
+          button.classList.remove("horizontal");
+          button.classList.add("vertical");
+          horizontalImg.style.display = "none";
+          verticalImg.style.display = "block";
         }
       });
 
-      board.appendChild(cell);
-    }
-  }
+      // Seleccionar barco
+      button.addEventListener("click", (e) => {
+        if (e.target.classList.contains("rotate-btn")) return;
 
-  // Selección de barcos
-  const shipButtons = document.querySelectorAll(".ship-btn");
+        shipButtons.forEach((btn) => btn.classList.remove("selected"));
+        button.classList.add("selected");
 
-  shipButtons.forEach((button) => {
-    // Botón rotar
-    button.querySelector(".rotate-btn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      const isVertical = button.classList.contains("vertical");
+        const isVertical = button.classList.contains("vertical");
 
-      const verticalImg = button.querySelector(".vertical-img");
-      const horizontalImg = button.querySelector(".horizontal-img");
-
-      if (isVertical) {
-        button.classList.remove("vertical");
-        button.classList.add("horizontal");
-        verticalImg.style.display = "none";
-        horizontalImg.style.display = "block";
-      } else {
-        button.classList.remove("horizontal");
-        button.classList.add("vertical");
-        horizontalImg.style.display = "none";
-        verticalImg.style.display = "block";
-      }
+        selectedShip = {
+          ship: button.dataset.ship,
+          size: parseInt(button.dataset.size),
+          vertical: isVertical,
+          src: isVertical
+            ? button.querySelector(".vertical-img").src
+            : button.querySelector(".horizontal-img").src,
+        };
+      });
     });
 
-    // Seleccionar barco
-    button.addEventListener("click", (e) => {
-      if (e.target.classList.contains("rotate-btn")) return;
+    function placeShip(shipInfo, col, row) {
+      const size = shipInfo.size;
+      const isVertical = shipInfo.vertical;
+      const startColIndex = letters.indexOf(col);
 
-      shipButtons.forEach((btn) => btn.classList.remove("selected"));
-      button.classList.add("selected");
-
-      const isVertical = button.classList.contains("vertical");
-
-      selectedShip = {
-        ship: button.dataset.ship,
-        size: parseInt(button.dataset.size),
-        vertical: isVertical,
-        src: isVertical
-          ? button.querySelector(".vertical-img").src
-          : button.querySelector(".horizontal-img").src,
-      };
-    });
-  });
-
-  function placeShip(shipInfo, col, row) {
-    const size = shipInfo.size;
-    const isVertical = shipInfo.vertical;
-    const startColIndex = letters.indexOf(col);
-
-    // VERIFICAR QUE EL BARCO NO ESTÉ YA COLOCADO
-    if (shipsPlaced.some((placedShip) => placedShip.ship === shipInfo.ship)) {
-      mostrarMensaje("Este barco ya ha sido colocado", "error");
-
-      return;
-    }
-
-    // VERIFICAR LÍMITES DEL TABLERO
-    if (shipInfo.ship === "portaviones") {
-      if (isVertical) {
-        if (startColIndex + 1 > 10 || row + 4 > 10) {
-          mostrarMensaje("No cabe verticalmente", "error");
-
-          return;
-        }
-      } else {
-        if (startColIndex + 5 > 10 || row + 1 > 10) {
-          mostrarMensaje("No cabe horizontalmente", "error");
-
-          return;
-        }
-      }
-    } else {
-      if (isVertical) {
-        if (row + size - 1 > 10) {
-          mostrarMensaje("No cabe verticalmente", "error");
-          return;
-        }
-      } else {
-        if (startColIndex + size > 10) {
-          mostrarMensaje("No cabe horizontalmente", "error");
-          return;
-        }
-      }
-    }
-
-    // OBTENER TODAS LAS CELDAS QUE OCUPARÁ EL BARCO Y SUS ALREDEDORES
-    const cellsToCheck = [];
-    const cellsToOccupy = [];
-
-    if (shipInfo.ship === "portaviones") {
-      for (let i = 0; i < 10; i++) {
-        let checkCol, checkRow;
-
-        if (isVertical) {
-          checkCol = letters[startColIndex + Math.floor(i / 5)];
-          checkRow = row + (i % 5);
-        } else {
-          checkCol = letters[startColIndex + (i % 5)];
-          checkRow = row + Math.floor(i / 5);
-        }
-
-        cellsToOccupy.push({ col: checkCol, row: checkRow });
-
-        // Añadir celdas adyacentes (alrededor del barco)
-        for (let adjRow = checkRow - 1; adjRow <= checkRow + 1; adjRow++) {
-          for (
-            let adjColIndex = letters.indexOf(checkCol) - 1;
-            adjColIndex <= letters.indexOf(checkCol) + 1;
-            adjColIndex++
-          ) {
-            if (
-              adjRow >= 1 &&
-              adjRow <= 10 &&
-              adjColIndex >= 0 &&
-              adjColIndex < 10
-            ) {
-              const adjCol = letters[adjColIndex];
-              cellsToCheck.push({ col: adjCol, row: adjRow });
-            }
-          }
-        }
-      }
-    } else {
-      for (let i = 0; i < size; i++) {
-        const checkCol = isVertical ? col : letters[startColIndex + i];
-        const checkRow = isVertical ? row + i : row;
-
-        cellsToOccupy.push({ col: checkCol, row: checkRow });
-
-        // Añadir celdas adyacentes (alrededor del barco)
-        for (let adjRow = checkRow - 1; adjRow <= checkRow + 1; adjRow++) {
-          for (
-            let adjColIndex = letters.indexOf(checkCol) - 1;
-            adjColIndex <= letters.indexOf(checkCol) + 1;
-            adjColIndex++
-          ) {
-            if (
-              adjRow >= 1 &&
-              adjRow <= 10 &&
-              adjColIndex >= 0 &&
-              adjColIndex < 10
-            ) {
-              const adjCol = letters[adjColIndex];
-              cellsToCheck.push({ col: adjCol, row: adjRow });
-            }
-          }
-        }
-      }
-    }
-
-    // Eliminar duplicados de las celdas a verificar
-    const uniqueCellsToCheck = Array.from(
-      new Set(cellsToCheck.map((cell) => `${cell.col}${cell.row}`))
-    ).map((str) => ({ col: str[0], row: parseInt(str.slice(1)) }));
-
-    // VERIFICAR SOLAPAMIENTO Y PROXIMIDAD
-    for (const cellPos of uniqueCellsToCheck) {
-      const cell = document.querySelector(
-        `.cell[data-col="${cellPos.col}"][data-row="${cellPos.row}"]`
-      );
-      if (cell && cell.dataset.occupied) {
-        mostrarMensaje(
-          "No puedes colocar barcos tan cerca de otros barcos. Debe haber al menos una casilla de separación.",
-          "error"
-        );
+      // VERIFICAR QUE EL BARCO NO ESTÉ YA COLOCADO
+      if (shipsPlaced.some((placedShip) => placedShip.ship === shipInfo.ship)) {
+        mostrarMensaje("Este barco ya ha sido colocado", "error");
 
         return;
       }
-    }
 
-    // MARCAR CELDAS COMO OCUPADAS (solo las del barco, no las adyacentes)
-    cellsToOccupy.forEach((cellPos) => {
-      const cell = document.querySelector(
-        `.cell[data-col="${cellPos.col}"][data-row="${cellPos.row}"]`
-      );
-      if (cell) {
-        cell.dataset.occupied = shipInfo.ship;
-      }
-    });
+      // VERIFICAR LÍMITES DEL TABLERO
+      if (shipInfo.ship === "portaviones") {
+        if (isVertical) {
+          if (startColIndex + 1 > 10 || row + 4 > 10) {
+            mostrarMensaje("No cabe verticalmente", "error");
 
-    // CREAR Y POSICIONAR BARCO VISUAL
-    const shipDiv = document.createElement("div");
-    shipDiv.classList.add("placed-ship");
-    shipDiv.classList.add(isVertical ? "vertical" : "horizontal");
+            return;
+          }
+        } else {
+          if (startColIndex + 5 > 10 || row + 1 > 10) {
+            mostrarMensaje("No cabe horizontalmente", "error");
 
-    const cellSize = 48;
-    const gap = 4;
-
-    let width, height;
-
-    if (shipInfo.ship === "portaviones") {
-      if (isVertical) {
-        width = 2 * (cellSize + gap) - gap;
-        height = 5 * (cellSize + gap) - gap;
+            return;
+          }
+        }
       } else {
-        width = 5 * (cellSize + gap) - gap;
-        height = 2 * (cellSize + gap) - gap;
+        if (isVertical) {
+          if (row + size - 1 > 10) {
+            mostrarMensaje("No cabe verticalmente", "error");
+            return;
+          }
+        } else {
+          if (startColIndex + size > 10) {
+            mostrarMensaje("No cabe horizontalmente", "error");
+            return;
+          }
+        }
       }
-    } else {
-      width = isVertical ? cellSize : size * (cellSize + gap) - gap;
-      height = isVertical ? size * (cellSize + gap) - gap : cellSize;
-    }
 
-    shipDiv.style.width = width + "px";
-    shipDiv.style.height = height + "px";
-    shipDiv.style.left = startColIndex * (cellSize + gap) + "px";
-    shipDiv.style.top = (row - 1) * (cellSize + gap) + "px";
+      // OBTENER TODAS LAS CELDAS QUE OCUPARÁ EL BARCO Y SUS ALREDEDORES
+      const cellsToCheck = [];
+      const cellsToOccupy = [];
 
-    // Añadir imagen
-    const shipImg = document.createElement("img");
-    shipImg.src = shipInfo.src;
-    shipDiv.appendChild(shipImg);
+      if (shipInfo.ship === "portaviones") {
+        for (let i = 0; i < 10; i++) {
+          let checkCol, checkRow;
 
-    const shipsLayer = document.getElementById("ships-layer");
-    if (shipsLayer) shipsLayer.appendChild(shipDiv);
+          if (isVertical) {
+            checkCol = letters[startColIndex + Math.floor(i / 5)];
+            checkRow = row + (i % 5);
+          } else {
+            checkCol = letters[startColIndex + (i % 5)];
+            checkRow = row + Math.floor(i / 5);
+          }
 
-    // ELIMINAR BARCO DEL PANEL
-    const shipButton = document.querySelector(
-      `.ship-btn[data-ship="${shipInfo.ship}"]`
-    );
-    if (shipButton) {
-      shipButton.remove();
-    }
+          cellsToOccupy.push({ col: checkCol, row: checkRow });
 
-    // DESELECCIONAR
-    selectedShip = null;
+          // Añadir celdas adyacentes (alrededor del barco)
+          for (let adjRow = checkRow - 1; adjRow <= checkRow + 1; adjRow++) {
+            for (
+              let adjColIndex = letters.indexOf(checkCol) - 1;
+              adjColIndex <= letters.indexOf(checkCol) + 1;
+              adjColIndex++
+            ) {
+              if (
+                adjRow >= 1 &&
+                adjRow <= 10 &&
+                adjColIndex >= 0 &&
+                adjColIndex < 10
+              ) {
+                const adjCol = letters[adjColIndex];
+                cellsToCheck.push({ col: adjCol, row: adjRow });
+              }
+            }
+          }
+        }
+      } else {
+        for (let i = 0; i < size; i++) {
+          const checkCol = isVertical ? col : letters[startColIndex + i];
+          const checkRow = isVertical ? row + i : row;
 
-    // GUARDAR POSICIÓN
-    /*shipsPlaced.push({
+          cellsToOccupy.push({ col: checkCol, row: checkRow });
+
+          // Añadir celdas adyacentes (alrededor del barco)
+          for (let adjRow = checkRow - 1; adjRow <= checkRow + 1; adjRow++) {
+            for (
+              let adjColIndex = letters.indexOf(checkCol) - 1;
+              adjColIndex <= letters.indexOf(checkCol) + 1;
+              adjColIndex++
+            ) {
+              if (
+                adjRow >= 1 &&
+                adjRow <= 10 &&
+                adjColIndex >= 0 &&
+                adjColIndex < 10
+              ) {
+                const adjCol = letters[adjColIndex];
+                cellsToCheck.push({ col: adjCol, row: adjRow });
+              }
+            }
+          }
+        }
+      }
+
+      // Eliminar duplicados de las celdas a verificar
+      const uniqueCellsToCheck = Array.from(
+        new Set(cellsToCheck.map((cell) => `${cell.col}${cell.row}`))
+      ).map((str) => ({ col: str[0], row: parseInt(str.slice(1)) }));
+
+      // VERIFICAR SOLAPAMIENTO Y PROXIMIDAD
+      for (const cellPos of uniqueCellsToCheck) {
+        const cell = document.querySelector(
+          `.cell[data-col="${cellPos.col}"][data-row="${cellPos.row}"]`
+        );
+        if (cell && cell.dataset.occupied) {
+          mostrarMensaje(
+            "No puedes colocar barcos tan cerca de otros barcos. Debe haber al menos una casilla de separación.",
+            "error"
+          );
+
+          return;
+        }
+      }
+
+      // MARCAR CELDAS COMO OCUPADAS (solo las del barco, no las adyacentes)
+      cellsToOccupy.forEach((cellPos) => {
+        const cell = document.querySelector(
+          `.cell[data-col="${cellPos.col}"][data-row="${cellPos.row}"]`
+        );
+        if (cell) {
+          cell.dataset.occupied = shipInfo.ship;
+        }
+      });
+
+      // CREAR Y POSICIONAR BARCO VISUAL
+      const shipDiv = document.createElement("div");
+      shipDiv.classList.add("placed-ship");
+      shipDiv.classList.add(isVertical ? "vertical" : "horizontal");
+
+      const cellSize = 48;
+      const gap = 4;
+
+      let width, height;
+
+      if (shipInfo.ship === "portaviones") {
+        if (isVertical) {
+          width = 2 * (cellSize + gap) - gap;
+          height = 5 * (cellSize + gap) - gap;
+        } else {
+          width = 5 * (cellSize + gap) - gap;
+          height = 2 * (cellSize + gap) - gap;
+        }
+      } else {
+        width = isVertical ? cellSize : size * (cellSize + gap) - gap;
+        height = isVertical ? size * (cellSize + gap) - gap : cellSize;
+      }
+
+      shipDiv.style.width = width + "px";
+      shipDiv.style.height = height + "px";
+      shipDiv.style.left = startColIndex * (cellSize + gap) + "px";
+      shipDiv.style.top = (row - 1) * (cellSize + gap) + "px";
+
+      // Añadir imagen
+      const shipImg = document.createElement("img");
+      shipImg.src = shipInfo.src;
+      shipDiv.appendChild(shipImg);
+
+      const shipsLayer = document.getElementById("ships-layer");
+      if (shipsLayer) shipsLayer.appendChild(shipDiv);
+
+      // ELIMINAR BARCO DEL PANEL
+      const shipButton = document.querySelector(
+        `.ship-btn[data-ship="${shipInfo.ship}"]`
+      );
+      if (shipButton) {
+        shipButton.remove();
+      }
+
+      // DESELECCIONAR
+      selectedShip = null;
+
+      // GUARDAR POSICIÓN
+      /*shipsPlaced.push({
       ship: shipInfo.ship,
       col: col,
       row: row,
       vertical: isVertical,
       size: size,
     });*/
-    // DETERMINAR ANCHO Y ALTO REALES
-    let anchoReal, altoReal;
+      // DETERMINAR ANCHO Y ALTO REALES
+      let anchoReal, altoReal;
 
-    // PORTAVIONES → tamaño 2x5
-    if (shipInfo.ship === "portaviones") {
-      if (isVertical) {
-        anchoReal = 2;
-        altoReal = 5;
-      } else {
-        anchoReal = 5;
-        altoReal = 2;
+      // PORTAVIONES → tamaño 2x5
+      if (shipInfo.ship === "portaviones") {
+        if (isVertical) {
+          anchoReal = 2;
+          altoReal = 5;
+        } else {
+          anchoReal = 5;
+          altoReal = 2;
+        }
+      }
+      // BARCOS NORMALES → 1xN
+      else {
+        if (isVertical) {
+          anchoReal = 1;
+          altoReal = size;
+        } else {
+          anchoReal = size;
+          altoReal = 1;
+        }
+      }
+
+      // GUARDAR POSICIÓN SEGÚN NUEVO FORMATO
+      shipsPlaced.push({
+        tipo: shipInfo.ship,
+        size: anchoReal * altoReal,
+        ancho: anchoReal,
+        alto: altoReal,
+        orientacion: isVertical ? "vertical" : "horizontal",
+        xInicio: letters.indexOf(col) + 1, // convertir A → 1, B → 2...
+        yInicio: row,
+      });
+
+      console.log("Barcos colocados:", shipsPlaced);
+
+      console.log("Barcos colocados:", shipsPlaced);
+
+      // VERIFICAR SI TODOS LOS BARCOS ESTÁN COLOCADOS
+      if (shipsPlaced.length === 6) {
+        document.getElementById("btn-batalla").style.background = "#4CAF50";
+        mostrarMensaje(
+          "¡Todos los barcos colocados! Puedes comenzar la batalla.",
+          "success"
+        );
       }
     }
-    // BARCOS NORMALES → 1xN
-    else {
-      if (isVertical) {
-        anchoReal = 1;
-        altoReal = size;
-      } else {
-        anchoReal = size;
-        altoReal = 1;
-      }
-    }
+  })();
 
-    // GUARDAR POSICIÓN SEGÚN NUEVO FORMATO
-    shipsPlaced.push({
-      tipo: shipInfo.ship,
-      size: anchoReal * altoReal,
-      ancho: anchoReal,
-      alto: altoReal,
-      orientacion: isVertical ? "vertical" : "horizontal",
-      xInicio: letters.indexOf(col) + 1, // convertir A → 1, B → 2...
-      yInicio: row,
+  //*********Modal Guardar datos para Partida/Batalla************/
+  const btnBatalla = document.getElementById("btn-batalla");
+  if (btnBatalla) {
+    btnBatalla.addEventListener("click", async () => {
+      const jugadorNombre = document.getElementById(
+        "almirante-nombre-jugador"
+      ).value;
+      const almiranteNombre =
+        document.getElementById("almirante-nombre").innerText;
+
+      if (shipsPlaced.length !== 6) {
+        mostrarMensaje(
+          "Debe colocar todos los barcos antes de iniciar la batalla",
+          true
+        );
+        return;
+      }
+
+      const respuesta = await fetch("../php/guardarPartida.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jugador: jugadorNombre,
+          oponente: almiranteNombre,
+          flotaJugador: shipsPlaced,
+        }),
+      });
+
+      const data = await respuesta.json();
+
+      if (data.error) {
+        mostrarMensaje(data.error, true);
+        return;
+      }
+
+      window.location.href = "batalla.php?id=" + data.idPartida;
     });
-
-    console.log("Barcos colocados:", shipsPlaced);
-
-    console.log("Barcos colocados:", shipsPlaced);
-
-    // VERIFICAR SI TODOS LOS BARCOS ESTÁN COLOCADOS
-    if (shipsPlaced.length === 6) {
-      document.getElementById("btn-batalla").style.background = "#4CAF50";
-      mostrarMensaje(
-        "¡Todos los barcos colocados! Puedes comenzar la batalla.",
-        "success"
-      );
-    }
   }
-})();
+  ///////////////////////////////////////
+  // Pantalla Batalla
+  //////////////////////////////////////
+  if (window.JUEGO_DATA) {
+    const {
+      flotaJugador,
+      flotaEnemigo,
+      disparos,
+      usuario,
+      imagenUsuario,
+      idPartida,
+    } = window.JUEGO_DATA;
 
-//*********Guardar datos para Partida/Batalla************/
-const btnBatalla = document.getElementById("btn-batalla");
-if (btnBatalla) {
-  btnBatalla.addEventListener("click", async () => {
-    const jugadorNombre = document.getElementById(
-      "almirante-nombre-jugador"
-    ).value;
-    const almiranteNombre =
-      document.getElementById("almirante-nombre").innerText;
+    let tiempo = window.JUEGO_DATA.tiempo;
+    let puntos = window.JUEGO_DATA.puntos;
 
-    if (shipsPlaced.length !== 6) {
-      mostrarMensaje(
-        "Debe colocar todos los barcos antes de iniciar la batalla",
-        true
-      );
-      return;
-    }
+    const letters = "ABCDEFGHIJ";
+    const playerBoard = document.getElementById("board-player");
+    const enemyBoard = document.getElementById("enemy-board");
 
-    const respuesta = await fetch("../php/guardarPartida.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jugador: jugadorNombre,
-        oponente: almiranteNombre,
-        flotaJugador: shipsPlaced,
-      }),
+    let matrizJugador = Array.from({ length: 10 }, () => Array(10).fill(null));
+    let matrizEnemigo = Array.from({ length: 10 }, () => Array(10).fill(null));
+
+    let turno = null; // "jugador" o "enemigo"
+    let partidaIniciada = false;
+
+    // Temporizador
+
+    setInterval(() => {
+      tiempo++;
+      document.getElementById("timer-enemy").textContent =
+        "Tiempo: " + tiempo + "s";
+    }, 1000);
+
+    // ==========================
+    // TABLERO DEL JUGADOR
+    // ==========================
+    flotaJugador.forEach((b, idx) => {
+      const tipo = b.tipo ?? "barco" + idx;
+      const startX = (b.xInicio ?? 1) - 1;
+      const startY = (b.yInicio ?? 1) - 1;
+      const ancho = b.ancho ?? 1;
+      const alto = b.alto ?? 1;
+
+      for (let dy = 0; dy < alto; dy++) {
+        for (let dx = 0; dx < ancho; dx++) {
+          const nx = startX + dx;
+          const ny = startY + dy;
+          if (nx < 0 || nx > 9 || ny < 0 || ny > 9) continue;
+          matrizJugador[ny][nx] = { tipo: tipo, barcoIndex: idx };
+        }
+      }
     });
 
-    const data = await respuesta.json();
+    for (let y = 0; y < 10; y++) {
+      for (let x = 0; x < 10; x++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell-player-batalla");
+        cell.dataset.x = x + 1;
+        cell.dataset.y = y + 1;
+        cell.dataset.col = letters[x];
+        cell.dataset.row = y + 1;
+        cell.id = `player-${x + 1}-${y + 1}`;
 
-    if (data.error) {
-      mostrarMensaje(data.error, true);
-      return;
+        const info = matrizJugador[y][x];
+        if (info) {
+          cell.classList.add("cell-ship");
+          cell.dataset.occupied = "true";
+          cell.dataset.ship = info.tipo;
+          cell.title = `${cell.dataset.col}${cell.dataset.row} — ${info.tipo}`;
+        } else {
+          cell.title = `${cell.dataset.col}${cell.dataset.row}`;
+        }
+        playerBoard.appendChild(cell);
+      }
     }
 
-    window.location.href = "batalla.php?id=" + data.idPartida;
-  });
+    // ==========================
+    // TABLERO DEL ENEMIGO
+    // ==========================
+    flotaEnemigo.forEach((b, idx) => {
+      const tipo = b.tipo ?? "enemigo" + idx;
+      const startX = (b.xInicio ?? 1) - 1;
+      const startY = (b.yInicio ?? 1) - 1;
+      const ancho = b.ancho ?? 1;
+      const alto = b.alto ?? 1;
+
+      for (let dy = 0; dy < alto; dy++) {
+        for (let dx = 0; dx < ancho; dx++) {
+          const nx = startX + dx;
+          const ny = startY + dy;
+          if (nx < 0 || nx > 9 || ny < 0 || ny > 9) continue;
+          matrizEnemigo[ny][nx] = { tipo: tipo, barcoIndex: idx };
+        }
+      }
+    });
+
+    // Pintar tablero enemigo
+    for (let y = 0; y < 10; y++) {
+      for (let x = 0; x < 10; x++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell-enemy-batalla");
+        cell.dataset.x = x + 1;
+        cell.dataset.y = y + 1;
+        cell.dataset.col = letters[x];
+        cell.dataset.row = y + 1;
+        cell.id = `enemy-${x + 1}-${y + 1}`;
+
+        const info = matrizEnemigo[y][x];
+        if (info) {
+          cell.dataset.occupied = "true";
+          cell.dataset.ship = info.tipo;
+          cell.dataset.barcoIndex = info.barcoIndex;
+        }
+        enemyBoard.appendChild(cell);
+      }
+    }
+
+    // ==========================
+    // FUNCIONES
+    // ==========================
+    function mostrarMensaje(text, isError = false) {
+      const msg = document.getElementById("mensaje");
+      msg.textContent = text;
+      msg.className = isError ? "mensaje error" : "mensaje";
+      setTimeout(() => {
+        msg.textContent = "";
+        msg.className = "mensaje";
+      }, 3500);
+    }
+
+    const mensajesJuego = [];
+
+    const MAX_MESSAGES = 4;
+
+    function mostrarMensajeCapitan(text) {
+      // añade mensaje al array
+      mensajesJuego.push(text);
+
+      // mantener sólo los últimos MAX_MESSAGES (los más recientes)
+      while (mensajesJuego.length > MAX_MESSAGES) {
+        mensajesJuego.shift(); // quita el más antiguo
+      }
+
+      const contenedor = document.getElementById("mensajes-juego");
+      if (!contenedor) return;
+
+      // Queremos mostrar el más reciente arriba: renderizamos el array en orden inverso
+      const html = mensajesJuego
+        .slice()
+        .map((m) => `<p class="msg-line">${m}</p>`)
+        .join("");
+      contenedor.innerHTML = html;
+    }
+
+    function actualizarTurno(turnoActual) {
+      const playerHeader = document.getElementById("player-header-panel");
+      const attackerHeader = document.getElementById("attacker-header-panel");
+
+      // Limpia los bordes
+      playerHeader.classList.remove("turno");
+      attackerHeader.classList.remove("turno");
+
+      if (turnoActual === "jugador") {
+        playerHeader.classList.add("turno");
+        attackerHeader.classList.remove("turno");
+      } else {
+        playerHeader.classList.remove("turno");
+        attackerHeader.classList.add("turno");
+      }
+    }
+
+    function actualizarPuntos(resultado) {
+      if (resultado === "tocado") puntos += 100;
+      else if (resultado === "hundido") puntos += 1000;
+      else if (resultado === "agua") puntos -= 10;
+
+      document.getElementById("score-enemy").textContent = "Puntos: " + puntos;
+    }
+
+    /*function finalizarPartida(ganador) {
+      if (ganador === usuario) puntos += 5000;
+
+      fetch("../php/guardarProgreso.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idPartida: parseInt(document.getElementById("idPartida").value),
+          puntos: puntos,
+          estadoTablero: estadoTablero,
+        }),
+      })
+        .then((r) => r.json())
+        .then((data) => console.log("Puntos guardados:", data));
+    }*/
+
+    function colocarBarcosEnemigos(flota) {
+      const layer = document.getElementById("enemy-ships-layer");
+      layer.innerHTML = "";
+      const cellSize = 40;
+      const gap = 3;
+
+      flota.forEach((barco) => {
+        const x = (barco.xInicio ?? 1) - 1;
+        const y = (barco.yInicio ?? 1) - 1;
+        const ancho = barco.ancho ?? 1;
+        const alto = barco.alto ?? 1;
+        const widthPx = ancho * cellSize + (ancho - 1) * gap;
+        const heightPx = alto * cellSize + (alto - 1) * gap;
+        const left = x * (cellSize + gap);
+        const top = y * (cellSize + gap);
+
+        const shipDiv = document.createElement("div");
+        shipDiv.classList.add("placed-ship");
+        shipDiv.style.width = widthPx + "px";
+        shipDiv.style.height = heightPx + "px";
+        shipDiv.style.left = left + "px";
+        shipDiv.style.top = top + "px";
+
+        const img = document.createElement("img");
+        img.src =
+          ancho > alto
+            ? `../assets/img/imagenes/rotated_${barco.tipo}.png`
+            : `../assets/img/imagenes/${barco.tipo}.png`;
+        shipDiv.appendChild(img);
+        layer.appendChild(shipDiv);
+      });
+    }
+
+    function crearOverlayDisparos() {
+      const overlay = document.getElementById("enemy-overlay");
+      overlay.innerHTML = "";
+
+      // Asegurar que el overlay tenga las dimensiones correctas
+      overlay.style.width = "calc(10 * 40px + 9 * 3px)";
+      overlay.style.height = "calc(10 * 40px + 9 * 3px)";
+
+      for (let y = 1; y <= 10; y++) {
+        for (let x = 1; x <= 10; x++) {
+          const btn = document.createElement("div");
+          btn.classList.add("overlay-cell");
+          btn.dataset.x = x;
+          btn.dataset.y = y;
+
+          // DEBUG: Mostrar coordenadas temporalmente
+          btn.title = `Disparar a ${letters[x - 1]}${y}`;
+
+          // Verificar si ya hay disparo aquí
+          const disparoPrevio = disparos.find(
+            (d) => d.posX === x && d.posY === y && d.propietario === "jugador"
+          );
+          const celdaReal = document.getElementById(`enemy-${x}-${y}`);
+
+          if (disparoPrevio) {
+            btn.classList.add("revealed");
+            celdaReal.dataset.disparado = "true";
+
+            if (
+              disparoPrevio.resultado === "tocado" ||
+              disparoPrevio.resultado === "hundido"
+            ) {
+              btn.innerHTML = "💥";
+              btn.style.color = "yellow";
+              btn.style.fontSize = "24px";
+              btn.style.display = "flex";
+              btn.style.justifyContent = "center";
+              btn.style.alignItems = "center";
+            } else {
+              btn.innerHTML = "💧";
+              btn.style.color = "lightblue";
+              btn.style.fontSize = "20px";
+              btn.style.display = "flex";
+              btn.style.justifyContent = "center";
+              btn.style.alignItems = "center";
+            }
+          }
+
+          btn.addEventListener("click", (e) => {
+            console.log(`Click en overlay: ${x},${y}`);
+            manejarDisparoJugador(x, y, btn, celdaReal);
+          });
+
+          overlay.appendChild(btn);
+        }
+      }
+    }
+
+    // Función separada para manejar disparos
+    function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
+      if (turno !== "jugador") {
+        mostrarMensajeCapitan("¡Espere su turno, almirante!");
+        return;
+      }
+
+      if (celdaReal.dataset.disparado === "true") {
+        console.log("Celda ya disparada, ignorando...");
+        return;
+      }
+
+      console.log(`Procesando disparo en: ${x},${y}`);
+
+      // Marcar inmediatamente como disparado
+      celdaReal.dataset.disparado = "true";
+      overlayCell.classList.add("revealed");
+
+      const ocupado = celdaReal.dataset.occupied === "true";
+      const barco = celdaReal.dataset.ship || null;
+      const layer = document.getElementById("enemy-ships-layer");
+
+      if (ocupado) {
+        // Impacto
+        const fuego = document.createElement("div");
+        fuego.classList.add("fire-hit-cell");
+        const cellSize = 40,
+          gap = 3;
+        fuego.style.left = (x - 1) * (cellSize + gap) + "px";
+        fuego.style.top = (y - 1) * (cellSize + gap) + "px";
+        fuego.style.width = cellSize + "px";
+        fuego.style.height = cellSize + "px";
+        fuego.innerHTML = "💥";
+        fuego.style.display = "flex";
+        fuego.style.justifyContent = "center";
+        fuego.style.alignItems = "center";
+        fuego.style.fontSize = "24px";
+        layer.appendChild(fuego);
+
+        mostrarMensajeCapitan(`¡Impacto en ${letters[x - 1]}${y}!`);
+        actualizarPuntos("tocado");
+
+        // Verificar si el barco fue hundido
+        const todasCeldas = Array.from(
+          document.querySelectorAll(`.cell-enemy-batalla[data-ship='${barco}']`)
+        );
+        const hundido = todasCeldas.every(
+          (c) => c.dataset.disparado === "true"
+        );
+
+        if (hundido) {
+          mostrarMensajeCapitan(
+            `¡Almirante! Hemos hundido el ${barco} enemigo!`
+          );
+          actualizarPuntos("hundido");
+        }
+      } else {
+        // Agua
+        overlayCell.innerHTML = "";
+        overlayCell.style.color = "lightblue";
+        overlayCell.style.fontSize = "20px";
+        overlayCell.style.display = "flex";
+        overlayCell.style.justifyContent = "center";
+        overlayCell.style.alignItems = "center";
+
+        celdaReal.classList.add("miss");
+        mostrarMensajeCapitan(`Agua en ${letters[x - 1]}${y}`);
+        actualizarPuntos("agua");
+      }
+
+      // Guardar disparo
+      const datosDisparo = {
+        idPartida: parseInt(idPartida),
+        propietario: "jugador",
+        x: x,
+        y: y,
+        resultado: ocupado ? "tocado" : "agua",
+      };
+
+      fetch("../php/guardarDisparo.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosDisparo),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.error("Error al guardar disparo:", data.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error en fetch:", error);
+        });
+
+      // Verificar si todos los barcos enemigos están hundidos
+      const todasCeldasEnemigo = Array.from(
+        document.querySelectorAll('.cell-enemy-batalla[data-occupied="true"]')
+      );
+      const todosHundidos = todasCeldasEnemigo.every(
+        (c) => c.dataset.disparado === "true"
+      );
+
+      if (todosHundidos) {
+        finalizarPartida(usuario); // El jugador ganó
+        return; // Salir para no continuar con el turno enemigo
+      }
+
+      // Cambiar turno
+      turno = "enemigo";
+      actualizarTurno(turno);
+      setTimeout(turnoEnemigo, 2200);
+    }
+
+    function turnoEnemigo() {
+      mostrarMensajeCapitan("El enemigo está disparando…");
+      let x, y, celda;
+
+      do {
+        x = Math.floor(Math.random() * 10) + 1;
+        y = Math.floor(Math.random() * 10) + 1;
+        celda = document.getElementById(`player-${x}-${y}`);
+      } while (celda.classList.contains("disparado"));
+
+      celda.classList.add("disparado");
+      const ocupado = celda.dataset.occupied === "true";
+
+      if (ocupado) {
+        celda.classList.add("hit-player");
+        celda.innerHTML = "💥";
+        mostrarMensajeCapitan(
+          `¡Almirante! Han tocado nuestro ${celda.dataset.ship}!`
+        );
+      } else {
+        celda.classList.add("miss-player");
+        celda.innerHTML = "🟦";
+        mostrarMensajeCapitan("El enemigo ha fallado.");
+      }
+
+      // ===== Guardar disparo enemigo =====
+      fetch("../php/guardarDisparo.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idPartida: parseInt(document.getElementById("idPartida").value),
+          propietario: "enemigo",
+
+          x: x,
+          y: y,
+          resultado: ocupado ? "tocado" : "agua",
+        }),
+      })
+        .then((r) => r.json())
+        .then((data) => console.log("Disparo enemigo guardado:", data))
+        .catch((err) => console.error("Error guardando disparo enemigo:", err));
+
+      // Verificar si todos los barcos del jugador están hundidos
+      const todasCeldasJugador = Array.from(
+        document.querySelectorAll('.cell-player-batalla[data-occupied="true"]')
+      );
+      const todosHundidosJugador = todasCeldasJugador.every((c) =>
+        c.classList.contains("disparado")
+      );
+
+      if (todosHundidosJugador) {
+        finalizarPartida("Enemigo"); // El jugador perdió
+        return;
+      }
+      turno = "jugador";
+      mostrarMensajeCapitan("Es su turno, almirante.");
+      actualizarTurno("jugador");
+    }
+
+    function sorteoInicial() {
+      if (partidaIniciada) return;
+      const empiezaJugador = Math.random() < 0.5;
+      turno = empiezaJugador ? "jugador" : "enemigo";
+
+      if (empiezaJugador) {
+        mostrarMensajeCapitan(
+          "¡Almirante! Hemos ganado el sorteo, usted dispara primero."
+        );
+      } else {
+        mostrarMensajeCapitan(
+          "Almirante… el enemigo ha ganado el sorteo. ¡Prepárese!"
+        );
+        setTimeout(turnoEnemigo, 1500);
+      }
+
+      partidaIniciada = true;
+    }
+
+    function finalizarPartida(ganador) {
+      // Guardar partida primero
+      fetch("../php/finalizarPartida.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idPartida: parseInt(document.getElementById("idPartida").value),
+          puntos: puntos,
+          estadoTablero: estadoTablero,
+          ganador: ganador,
+          enemigoNombre: nombreLegible, // nombre del enemigo cargado en la partida
+          enemigoFoto: elegido, // nombre del archivo de imagen
+        }),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          console.log("Partida guardada:", data);
+
+          // Después redirigir a la pantalla de resultado
+          let tipoResultado = ganador === usuario ? "victoria" : "derrota";
+          let nombreRival, fotoRival;
+          if (tipoResultado === "victoria") {
+            nombreRival = usuario;
+            fotoRival = imagenUsuario;
+          } else {
+            nombreRival = nombreLegible;
+            fotoRival = elegido;
+          }
+
+          // Redirigir
+          window.location.href = `resultado.php?tipo=${tipoResultado}&nombre=${encodeURIComponent(
+            nombreRival
+          )}&foto=${encodeURIComponent(fotoRival)}`;
+        })
+        .catch((err) => {
+          console.error("Error guardando partida:", err);
+          alert("Error al guardar la partida antes de finalizar.");
+        });
+    }
+
+    /*function debugOverlay() {
+    const overlayCells = document.querySelectorAll('.overlay-cell');
+    console.log(`Total celdas overlay: ${overlayCells.length}`);
+    
+    overlayCells.forEach(cell => {
+        cell.addEventListener('mouseenter', () => {
+            cell.style.background = 'rgba(255, 0, 0, 0.3)';
+        });
+        cell.addEventListener('mouseleave', () => {
+            if (!cell.classList.contains('revealed')) {
+                cell.style.background = 'rgba(0, 0, 0, 0.3)';
+            }
+        });
+    });
 }
+
+// Llamar después de crearOverlayDisparos()
+setTimeout(debugOverlay, 1000);*/
+
+    // ==========================
+    // INICIALIZACION
+    // ==========================
+    colocarBarcosEnemigos(flotaEnemigo);
+    crearOverlayDisparos();
+    // Restaurar disparos del jugador
+    restaurarDisparosJugador(
+      disparos.filter((d) => d.propietario === "jugador")
+    );
+    sorteoInicial();
+
+    // ==========================
+    // BOTÓN GUARDAR PARTIDA - SOLO UNA VEZ
+    // ==========================
+    document
+      .getElementById("guardarPartida")
+      .addEventListener("click", async () => {
+        const idPartida = document.getElementById("idPartida").value;
+
+        // Recolectar estado actual de los disparos
+        const estadoActual = {
+          // Disparos del jugador
+          disparosJugador: Array.from(
+            document.querySelectorAll('.cell-enemy[data-disparado="true"]')
+          ).map((celda) => ({
+            x: parseInt(celda.dataset.x),
+            y: parseInt(celda.dataset.y),
+            resultado: celda.classList.contains("miss") ? "agua" : "tocado",
+          })),
+          // Disparos del enemigo
+          disparosEnemigo: Array.from(
+            document.querySelectorAll(".cell-player.disparado")
+          ).map((celda) => ({
+            x: parseInt(celda.dataset.x),
+            y: parseInt(celda.dataset.y),
+            resultado: celda.classList.contains("hit-player")
+              ? "tocado"
+              : "agua",
+          })),
+          turnoActual: turno,
+          partidaIniciada: partidaIniciada,
+        };
+
+        try {
+          const respuesta = await fetch("../php/guardarProgreso.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              idPartida: parseInt(idPartida),
+              flotaJugador: flotaJugador,
+              flotaEnemigo: flotaEnemigo,
+              estadoTablero: estadoActual, // Guardar el estado actual
+              puntos: puntos,
+              tiempo: tiempo,
+            }),
+          });
+
+          const data = await respuesta.json();
+          console.log("Respuesta guardado:", data);
+
+          if (data.ok) {
+            mostrarMensaje("Partida guardada correctamente");
+          } else {
+            mostrarMensaje(
+              "Error al guardar: " + (data.error || "Desconocido"),
+              true
+            );
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          mostrarMensaje("Error de conexión al guardar", true);
+        }
+      });
+
+    // ==========================
+    // RESTAURAR DISPAROS PREVIOS
+    // ==========================
+    disparos.forEach((d) => {
+      const x = d.posX;
+      const y = d.posY;
+
+      if (d.propietario === "jugador") {
+        const celda = document.getElementById(`enemy-${x}-${y}`);
+        if (!celda) return;
+
+        celda.dataset.disparado = "true";
+        const layer = document.getElementById("enemy-ships-layer");
+
+        if (d.resultado === "tocado" || d.resultado === "hundido") {
+          const fuego = document.createElement("div");
+          fuego.classList.add("fire-hit-cell");
+          const cellSize = 40,
+            gap = 3;
+          fuego.style.left = (x - 1) * (cellSize + gap) + "px";
+          fuego.style.top = (y - 1) * (cellSize + gap) + "px";
+          fuego.style.width = cellSize + "px";
+          fuego.style.height = cellSize + "px";
+          fuego.innerHTML = "💥";
+          layer.appendChild(fuego);
+        } else {
+          celda.classList.add("miss");
+        }
+      } else {
+        const celda = document.getElementById(`player-${x}-${y}`);
+        if (!celda) return;
+
+        celda.classList.add("disparado");
+
+        if (d.resultado === "tocado" || d.resultado === "hundido") {
+          celda.classList.add("hit-player");
+          celda.innerHTML = "💥";
+        } else {
+          celda.classList.add("miss-player");
+          celda.innerHTML = "🟦";
+        }
+      }
+    });
+
+    function restaurarDisparosJugador(disparosJugador) {
+      disparosJugador.forEach((d) => {
+        const x = d.posX;
+        const y = d.posY;
+
+        // Overlay cell
+        const overlayCell = document.querySelector(
+          `#enemy-overlay .overlay-cell[data-x="${x}"][data-y="${y}"]`
+        );
+        if (!overlayCell) return;
+
+        // Marcar como disparado (transparente)
+        overlayCell.classList.add("revealed");
+
+        // Mostrar fuego o agua
+        if (d.resultado === "tocado" || d.resultado === "hundido") {
+          overlayCell.innerHTML = "💥";
+          overlayCell.style.color = "yellow";
+          overlayCell.style.fontSize = "24px";
+          overlayCell.style.display = "flex";
+          overlayCell.style.justifyContent = "center";
+          overlayCell.style.alignItems = "center";
+        } else {
+          overlayCell.innerHTML = "";
+          overlayCell.style.color = "white";
+          overlayCell.style.fontSize = "16px";
+          overlayCell.style.display = "flex";
+          overlayCell.style.justifyContent = "center";
+          overlayCell.style.alignItems = "center";
+        }
+      });
+    }
+
+    //////////////////////////////////////////////////////
+
+    // VForzar victoria Jugador
+    //finalizarPartida(usuario);
+
+    // Forzar victoria Enemigo
+    //finalizarPartida("Enemigo"); //en proceso
+
+    ////////////////////////////////////////////////////////
+  } // Cierre del if (window.JUEGO_DATA)
+});

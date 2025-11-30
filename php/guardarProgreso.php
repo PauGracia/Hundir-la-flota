@@ -18,6 +18,7 @@ $estadoTablero = json_encode($data["estadoTablero"] ?? []);
 $puntos = $data["puntos"] ?? 0;
 $tiempo = $data["tiempo"] ?? 0;
 
+
 if (!$idPartida) {
     echo json_encode(["error" => "ID de partida no recibido"]);
     exit;
