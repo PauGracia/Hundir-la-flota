@@ -1,10 +1,26 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Lista de archivos (RENOMBRADOS)
+  // Lista de almirantes con nombre legible y id
   const almirantes = [
-    "Almirante_Cunningham.jpg",
-    "Almirante_Donitz.jpg",
-    "Almirante_Nimitz.jpg",
-    "Almirante_Yamamoto.jpg",
+    {
+      id: 1,
+      archivo: "Almirante_Cunningham.jpg",
+      nombreLegible: "Almirante Cunningham",
+    },
+    {
+      id: 2,
+      archivo: "Almirante_Donitz.jpg",
+      nombreLegible: "Almirante Donitz",
+    },
+    {
+      id: 3,
+      archivo: "Almirante_Nimitz.jpg",
+      nombreLegible: "Almirante Nimitz",
+    },
+    {
+      id: 4,
+      archivo: "Almirante_Yamamoto.jpg",
+      nombreLegible: "Almirante Yamamoto",
+    },
   ];
 
   // Elegir uno al azar
@@ -12,21 +28,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cambiar imagen
   const imgAlmirante = document.getElementById("almirante-img");
-  if (imgAlmirante) {
-    imgAlmirante.src = "../assets/img/almirantes/" + elegido;
-  }
-
-  // Convertir el nombre del archivo en texto legible
-  // "Almirante_Nimitz.jpg" en "Almirante Nimitz"
-  const nombreLegible = elegido
-    .replace(".jpg", "")
-    .replace("Almirante_", "Almirante ");
+  if (imgAlmirante)
+    imgAlmirante.src = "../assets/img/almirantes/" + elegido.archivo;
 
   // Mostrar el nombre
   const nombreAlmirante = document.getElementById("almirante-nombre");
-  if (nombreAlmirante) {
-    nombreAlmirante.innerText = nombreLegible;
-  }
+  if (nombreAlmirante) nombreAlmirante.innerText = elegido.nombreLegible;
+
+  // Guardar id y nombre para enviar al PHP
+  const enemigoNombre = elegido.nombreLegible;
+  const enemigoId = elegido.id;
 
   const sonidoHover = document.getElementById("sonidoHover");
   const sonidoClick = document.getElementById("sonidoClick");
@@ -1315,23 +1326,24 @@ document.addEventListener("DOMContentLoaded", () => {
           puntos: puntos,
           estadoTablero: estadoTablero,
           ganador: ganador,
-          enemigoNombre: nombreLegible, // nombre del enemigo cargado en la partida
-          enemigoFoto: elegido, // nombre del archivo de imagen
+          enemigoNombre: enemigoNombre, // nombre del enemigo cargado en la partida
+          enemigoFoto: elegido,
+          enemigoId: enemigoId,
         }),
       })
         .then((r) => r.json())
         .then((data) => {
           console.log("Partida guardada:", data);
 
-          // Después redirigir a la pantalla de resultado
           let tipoResultado = ganador === usuario ? "victoria" : "derrota";
           let nombreRival, fotoRival;
+
           if (tipoResultado === "victoria") {
             nombreRival = usuario;
-            fotoRival = imagenUsuario;
+            fotoRival = imagenUsuario; // avatar del usuario
           } else {
-            nombreRival = nombreLegible;
-            fotoRival = elegido;
+            nombreRival = enemigoNombre;
+            fotoRival = elegido.archivo;
           }
 
           // Redirigir
@@ -1339,6 +1351,7 @@ document.addEventListener("DOMContentLoaded", () => {
             nombreRival
           )}&foto=${encodeURIComponent(fotoRival)}`;
         })
+
         .catch((err) => {
           console.error("Error guardando partida:", err);
           alert("Error al guardar la partida antes de finalizar.");
@@ -1518,7 +1531,7 @@ setTimeout(debugOverlay, 1000);*/
     //////////////////////////////////////////////////////
 
     // VForzar victoria Jugador
-    //finalizarPartida(usuario);
+    finalizarPartida(usuario);
 
     // Forzar victoria Enemigo
     //finalizarPartida("Enemigo"); //en proceso

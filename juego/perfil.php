@@ -16,24 +16,30 @@ $usuario = $result->fetch_assoc();
 
 // Consulta de estadísticas contra cada almirante
 $statsQuery = "
-  SELECT 
-    a.nombreAlmirante,
-    a.imagenAlmirante,
-    COALESCE(SUM(CASE WHEN p.ganador = ? THEN 1 ELSE 0 END), 0) AS victorias,
-    COALESCE(SUM(CASE WHEN p.ganador != ? AND p.ganador IS NOT NULL THEN 1 ELSE 0 END), 0) AS derrotas
-  FROM almirantes a
-  LEFT JOIN partidas p 
-    ON ( (p.nombreOponente = a.nombreAlmirante OR p.nombreUsuario = a.nombreAlmirante)
-         AND (p.nombreUsuario = ? OR p.nombreOponente = ?) )
-  GROUP BY a.id
-  ORDER BY victorias DESC, derrotas ASC;
+    SELECT
+        a.nombreAlmirante,
+        a.imagenAlmirante,
+        a.victorias AS victoriasAlmirante,
+        COALESCE(SUM(
+            CASE
+                WHEN p.ganador = ? 
+                     AND SUBSTRING_INDEX(p.nombreOponente, ' ', -1) = SUBSTRING_INDEX(a.nombreAlmirante, ' ', -1)
+                THEN 1 ELSE 0
+            END
+        ), 0) AS victoriasUsuario
+    FROM almirantes a
+    LEFT JOIN partidas p
+        ON (p.nombreUsuario = ? OR p.nombreOponente = ?)
+    GROUP BY a.id
+    ORDER BY victoriasAlmirante DESC, victoriasUsuario DESC
 ";
 
 $stmtStats = $conexion->prepare($statsQuery);
-$stmtStats->bind_param("ssss", $nombreUsuario, $nombreUsuario, $nombreUsuario, $nombreUsuario);
+$stmtStats->bind_param("sss", $nombreUsuario, $nombreUsuario, $nombreUsuario);
 $stmtStats->execute();
 $statsResult = $stmtStats->get_result();
 $almirantesStats = $statsResult->fetch_all(MYSQLI_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -62,19 +68,20 @@ $almirantesStats = $statsResult->fetch_all(MYSQLI_ASSOC);
           <span><strong>Victorias totales:</strong> <?php echo $usuario['victorias']; ?></span>
         </div>
 
-        <h3>Historial contra almirantes</h3>
-        <div class="perfil__almirantes-lista">
-          <?php foreach ($almirantesStats as $alm): ?>
-            <div class="perfil__almirante">
-              <img src="../assets/img/almirantes/<?php echo htmlspecialchars($alm['imagenAlmirante']); ?>" alt="<?php echo htmlspecialchars($alm['nombreAlmirante']); ?>">
-              <div class="perfil__almirante-info">
-                <p class="perfil__almirante-nombre"><?php echo htmlspecialchars($alm['nombreAlmirante']); ?></p>
-                <p>🏆 <?php echo $alm['victorias']; ?> | ❌ <?php echo $alm['derrotas']; ?></p>
-              </div>
+       <h3>Historial contra almirantes</h3>
+      <div class="perfil__almirantes-lista">
+        <?php foreach ($almirantesStats as $alm): ?>
+          <div class="perfil__almirante">
+            <img src="../assets/img/almirantes/<?php echo htmlspecialchars($alm['imagenAlmirante']); ?>" 
+                alt="<?php echo htmlspecialchars($alm['nombreAlmirante']); ?>">
+            <div class="perfil__almirante-info">
+              <p class="perfil__almirante-nombre"><?php echo htmlspecialchars($alm['nombreAlmirante']); ?></p>
+              <p>🏆 <?php echo $alm['victoriasUsuario']; ?> | ❌ <?php echo $alm['victoriasAlmirante']; ?></p>
             </div>
-          <?php endforeach; ?>
-        </div>
+          </div>
+        <?php endforeach; ?>
       </div>
+
     </section>
 
     <!-- Columna derecha: configuración -->

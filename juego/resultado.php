@@ -20,7 +20,7 @@ if ($tipo === 'victoria') {
     $fondo = 'derrota.png';
 }
 
-// Si es un enemigo, usar la carpeta de almirantes
+
 // Determinar la ruta correcta
 if ($foto === 'default-avatar.jpg') {
     $fotoPath = '../assets/img/perfiles/' . $foto; // avatar por defecto
