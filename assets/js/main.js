@@ -282,10 +282,8 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmarSalir.addEventListener("click", () => {
       sonidoClick.currentTime = 0;
       sonidoClick.play();
-
       setTimeout(() => {
-        mostrarMensaje("Saliendo del juego...", "info");
-        window.location.href = "../index.php";
+        window.location.href = "/Hundir-la-flota/php/logout.php";
       }, 200);
     });
   }
@@ -1531,7 +1529,7 @@ setTimeout(debugOverlay, 1000);*/
     //////////////////////////////////////////////////////
 
     // VForzar victoria Jugador
-    finalizarPartida(usuario);
+    //finalizarPartida(usuario);
 
     // Forzar victoria Enemigo
     //finalizarPartida("Enemigo"); //en proceso

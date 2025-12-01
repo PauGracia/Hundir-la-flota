@@ -123,7 +123,7 @@ $hayPartidas = !empty($partidasGuardadas);
         </a>
 
         <a href="inicioJuego.php" class="menu__btn">Hundir la Flota</a>
-        <a href="#" class="menu__btn">Ranking</a>
+        <a href="ranking.php" class="menu__btn">Ranking</a>
         <a href="settings.php" class="menu__btn">Settings</a>
         <a href="#" class="menu__btn" id="btnSalir">Salir</a>
 
