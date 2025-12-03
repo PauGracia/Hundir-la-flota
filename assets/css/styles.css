@@ -1529,6 +1529,13 @@ body.settings {
 }
 
 /* ======== HEADER SUPERIOR ======== */
+
+.header-scale-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+}
 .header-bar-batalla {
   position: fixed;
   top: 0;
@@ -1541,9 +1548,32 @@ body.settings {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
   padding: 0 25px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   z-index: 999;
+  transform-origin: top left; /* Muy importante */
+  transition: transform 0.2s ease;
+}
+
+/* Paneles con mismo tamaño y estilo */
+.player-panel-batalla,
+.attacker-panel-batalla {
+  display: flex;
+  align-items: center;
+  max-width: 250px;
+  gap: 12px;
+  flex: 1; /* Ambos ocupan el mismo espacio */
+  height: 100px;
+
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  padding: 10px 15px;
+  margin: 0;
 }
 
 /* Botones del header */
@@ -1607,12 +1637,14 @@ body.settings {
 .attaker-con-batalla {
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .attacker-img-batalla {
-  height: 80px;
+  width: 70px;
+  height: 70px;
   border-radius: 8px;
-  object-fit: cover;
+  display: block;
 }
 
 .attacker-text0-batalla {
@@ -1832,18 +1864,6 @@ body.settings {
   z-index: 20;
 }
 
-/* Panel jugador al estilo attacker */
-.player-panel-batalla {
-  display: flex;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.45);
-  padding: 10px 16px;
-  border-radius: 12px;
-  gap: 10px;
-  margin-bottom: 10px;
-  transition: 0.2s;
-}
-
 .player-panel-batalla.turno {
   border: 2px solid red;
 }
@@ -1928,6 +1948,49 @@ body.settings {
   overflow-y: auto;
   width: 100%;
   padding-right: 5px;
+}
+
+@media (max-width: 800px) {
+  /* Reduce la altura general del header */
+  .header-bar-batalla {
+    height: 100px;
+    padding: 0 15px;
+    gap: 12px;
+  }
+
+  /* Paneles internos: más compactos */
+  .player-panel-batalla,
+  .attacker-panel-batalla {
+    height: 70px;
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  /* Imágenes dentro del panel (foto del jugador / enemigo) */
+  .attacker-img-batalla {
+    width: 45px;
+    height: 45px;
+    border-radius: 6px;
+  }
+
+  /* Texto "Almirante:" y "Enemigo:" */
+  .attacker-text0-batalla {
+    font-size: 12px;
+  }
+
+  /* Nombre del jugador y del enemigo */
+  .attacker-text-batalla {
+    font-size: 14px;
+  }
+
+  .btn,
+  .header-btn-batalla {
+    padding: 10px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    min-height: 28px;
+    line-height: 1;
+  }
 }
 
 /************************************

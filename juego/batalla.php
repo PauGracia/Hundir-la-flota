@@ -98,32 +98,35 @@ echo "<script>
     src="/Hundir-la-flota/audioPlayerFrame.html" 
     style="display:none">
    </iframe>
-<div class="header-bar-batalla">
-  <a href="menuJuego.php" class="header-btn-batalla">Salir</a>
+   <div class="header-scale-wrapper">
+        <div class="header-bar-batalla">
+        <a href="menuJuego.php" class="header-btn-batalla">Salir</a>
 
-  <!-- Panel jugador -->
-  <div id="player-header-panel" class="player-panel-batalla">
-      <img class="attacker-img-batalla" 
-           src="../assets/img/perfiles/<?php echo htmlspecialchars($usuario['imagenPerfil'] ?? 'default-avatar.jpg'); ?>" 
-           alt="Perfil">
-      <div class="attaker-con-batalla">
-          <p class="attacker-text0-batalla">Almirante:</p>
-          <span class="attacker-text-batalla"><?php echo htmlspecialchars($usuario['nombreUsuario']); ?></span>
-      </div>
-  </div>
+        <!-- Panel jugador -->
+        <div id="player-header-panel" class="player-panel-batalla">
+            <img class="attacker-img-batalla" 
+                src="../assets/img/perfiles/<?php echo htmlspecialchars($usuario['imagenPerfil'] ?? 'default-avatar.jpg'); ?>" 
+                alt="Perfil">
+            <div class="attaker-con-batalla">
+                <p class="attacker-text0-batalla">Almirante:</p>
+                <span class="attacker-text-batalla"><?php echo htmlspecialchars($usuario['nombreUsuario']); ?></span>
+            </div>
+        </div>
 
-  <!-- Panel atacante -->
-  <div id="attacker-header-panel" class="attacker-panel-batalla">
-    <img id="almirante-img" class="attacker-img-batalla" />
-    <div class="attaker-con-batalla">
-      <p class="attacker-text0-batalla">Enemigo:</p>
-      <p id="almirante-nombre" class="attacker-text-batalla">
-        <?php echo htmlspecialchars($oponente); ?>
-      </p>
-    </div>
-  </div>
+        <!-- Panel atacante -->
+        <div id="attacker-header-panel" class="attacker-panel-batalla">
+            <img id="almirante-img" class="attacker-img-batalla" />
+            <div class="attaker-con-batalla">
+            <p class="attacker-text0-batalla">Enemigo:</p>
+            <p id="almirante-nombre" class="attacker-text-batalla">
+                <?php echo htmlspecialchars($oponente); ?>
+            </p>
+            </div>
+        </div>
 
-  <button id="guardarPartida" class="header-btn-batalla">Guardar partida</button>
+        <button id="guardarPartida" class="header-btn-batalla">Guardar partida</button>
+        </div>
+
 </div>
 
 
