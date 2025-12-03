@@ -983,7 +983,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const contenedor = document.getElementById("mensajes-juego");
       if (!contenedor) return;
 
-      // Queremos mostrar el más reciente arriba: renderizamos el array en orden inverso
+      // Mostrar el mensaje más reciente arriba
       const html = mensajesJuego
         .slice()
         .map((m) => `<p class="msg-line">${m}</p>`)
@@ -1034,17 +1034,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function colocarBarcosEnemigos(flota) {
       const layer = document.getElementById("enemy-ships-layer");
-      layer.innerHTML = "";
-      const cellSize = 40;
-      const gap = 3;
+      layer.innerHTML = ""; // opcional
 
       flota.forEach((barco) => {
         const x = (barco.xInicio ?? 1) - 1;
         const y = (barco.yInicio ?? 1) - 1;
         const ancho = barco.ancho ?? 1;
         const alto = barco.alto ?? 1;
+
+        for (let dy = 0; dy < alto; dy++) {
+          for (let dx = 0; dx < ancho; dx++) {
+            const nx = x + dx;
+            const ny = y + dy;
+
+            const cell = document.getElementById(`enemy-${nx + 1}-${ny + 1}`);
+            if (!cell) continue;
+
+            cell.classList.add("cell-ship"); // estilo gris
+          }
+        }
+      });
+    }
+
+    function colocarBarcosJugador(flota) {
+      const layer = document.createElement("div");
+      layer.classList.add("ships-layer");
+      layer.style.position = "absolute";
+      layer.style.top = "0";
+      layer.style.left = "0";
+      layer.style.width = "100%";
+      layer.style.height = "100%";
+      layer.style.pointerEvents = "none";
+
+      document.getElementById("board-player").appendChild(layer);
+
+      const cellElement = document.querySelector(".cell-player-batalla");
+      const cellSize = cellElement.offsetWidth;
+      const gap = 2; // Modificar segun el gap del CSS
+
+      flota.forEach((barco) => {
+        const x = (barco.xInicio ?? 1) - 1;
+        const y = (barco.yInicio ?? 1) - 1;
+        const ancho = barco.ancho ?? 1;
+        const alto = barco.alto ?? 1;
+
         const widthPx = ancho * cellSize + (ancho - 1) * gap;
         const heightPx = alto * cellSize + (alto - 1) * gap;
+
         const left = x * (cellSize + gap);
         const top = y * (cellSize + gap);
 
@@ -1060,6 +1096,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ancho > alto
             ? `../assets/img/imagenes/rotated_${barco.tipo}.png`
             : `../assets/img/imagenes/${barco.tipo}.png`;
+
         shipDiv.appendChild(img);
         layer.appendChild(shipDiv);
       });
@@ -1123,7 +1160,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Función separada para manejar disparos
+    // Función para manejar disparos
     function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
       if (turno !== "jugador") {
         mostrarMensajeCapitan("¡Espere su turno, almirante!");
@@ -1378,6 +1415,8 @@ setTimeout(debugOverlay, 1000);*/
     // ==========================
     // INICIALIZACION
     // ==========================
+    colocarBarcosJugador(flotaJugador);
+
     colocarBarcosEnemigos(flotaEnemigo);
     crearOverlayDisparos();
     // Restaurar disparos del jugador
