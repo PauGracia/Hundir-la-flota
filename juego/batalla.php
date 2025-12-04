@@ -141,18 +141,18 @@ echo "<script>
 <div class="battle-container">
     <!-- IZQUIERDA: Panel jugador + tablero -->
     <div class="player-section">
-        <h2 class="board-title">La Flota</h2>
-        <div class="captain-panel-wrapper">
-            <!-- Imagen del capitán -->
-            <img src="../assets/img/imagenes/capitan.png" class="captain-img-batalla" alt="Capitán" />
-            <p class="attacker-text0-batalla">Capitan:</p>
-            <!-- Mensajes del juego -->
-            <div id="mensajes-juego" class="mensajes-juego"></div>
-             <!-- Tablero del jugador -->
-        <div id="board-player" class="board-grid-player"></div>
-        </div>
+    <h2 class="board-title">La Flota</h2>
+        <div class="player-content-wrapper">
+            <!-- Imagen del capitán + mensajes -->
+            <div class="captain-panel-wrapper">
+                <img src="../assets/img/imagenes/capitan.png" class="captain-img-batalla" alt="Capitán" />
+                <p class="attacker-text0-batalla">Capitán:</p>
+                <div id="mensajes-juego" class="mensajes-juego"></div>
+            </div>
 
-       
+            <!-- Tablero del jugador -->
+            <div id="board-player" class="board-grid-player"></div>
+        </div>
     </div>
 
     <!-- DERECHA: Panel enemigo + tablero -->
@@ -191,16 +191,6 @@ window.JUEGO_DATA = {
 </script>
 
 <script src="../assets/js/main.js?v=<?php echo time(); ?>"></script>
-
-
-
-
-
-<script>
-
-
-
-</script>
 
 </body>
 </html>

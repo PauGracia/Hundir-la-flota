@@ -957,7 +957,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // FUNCIONES
     // ==========================
-    function mostrarMensaje(text, isError = false) {
+    /*function mostrarMensaje(text, isError = false) {
       const msg = document.getElementById("mensaje");
       msg.textContent = text;
       msg.className = isError ? "mensaje error" : "mensaje";
@@ -965,30 +965,54 @@ document.addEventListener("DOMContentLoaded", () => {
         msg.textContent = "";
         msg.className = "mensaje";
       }, 3500);
-    }
+    }*/
 
     const mensajesJuego = [];
 
     const MAX_MESSAGES = 4;
 
     function mostrarMensajeCapitan(text) {
-      // añade mensaje al array
       mensajesJuego.push(text);
-
-      // mantener sólo los últimos MAX_MESSAGES (los más recientes)
-      while (mensajesJuego.length > MAX_MESSAGES) {
-        mensajesJuego.shift(); // quita el más antiguo
-      }
+      while (mensajesJuego.length > MAX_MESSAGES) mensajesJuego.shift();
 
       const contenedor = document.getElementById("mensajes-juego");
       if (!contenedor) return;
 
-      // Mostrar el mensaje más reciente arriba
       const html = mensajesJuego
         .slice()
         .map((m) => `<p class="msg-line">${m}</p>`)
         .join("");
       contenedor.innerHTML = html;
+
+      // Forzar scroll ARRIBA de forma robusta
+      mantenerScrollArriba(contenedor);
+    }
+
+    function mantenerScrollArriba(contenedor) {
+      if (!contenedor) return;
+
+      // Evitar comportamiento smooth CSS al forzar 'auto'
+      try {
+        contenedor.style.scrollBehavior = "auto";
+      } catch (e) {}
+
+      const cs = getComputedStyle(contenedor);
+      const isColumnReverse =
+        cs.display.includes("flex") && cs.flexDirection === "column-reverse";
+
+      const targetTop = isColumnReverse ? contenedor.scrollHeight : 0;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            try {
+              contenedor.scrollTo({ top: targetTop, behavior: "auto" });
+            } catch (e) {
+              contenedor.scrollTop = targetTop;
+            }
+          }, 20);
+        });
+      });
     }
 
     function actualizarTurno(turnoActual) {
@@ -1475,16 +1499,16 @@ setTimeout(debugOverlay, 1000);*/
           console.log("Respuesta guardado:", data);
 
           if (data.ok) {
-            mostrarMensaje("Partida guardada correctamente");
+            mostrarMensaje("Partida guardada correctamente", "success");
           } else {
             mostrarMensaje(
               "Error al guardar: " + (data.error || "Desconocido"),
-              true
+              "error"
             );
           }
         } catch (error) {
           console.error("Error:", error);
-          mostrarMensaje("Error de conexión al guardar", true);
+          mostrarMensaje("Error al guardar la partida", "error");
         }
       });
 

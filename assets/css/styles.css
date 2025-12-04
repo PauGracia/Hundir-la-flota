@@ -1570,7 +1570,7 @@ body.settings {
   align-items: center;
   gap: 15px;
 
-  background: rgba(0, 0, 0, 0.4);
+  background: black;
   border-radius: 10px;
   padding: 10px 15px;
   margin: 0;
@@ -1628,7 +1628,7 @@ body.settings {
 .attacker-panel-batalla {
   display: flex;
   align-items: center;
-  background: rgba(0, 0, 0, 0.45);
+  background: black;
   padding: 10px 16px;
   border-radius: 12px;
   gap: 10px;
@@ -1911,17 +1911,11 @@ body.settings {
   border: 2px solid red;
 }
 
-.player-section {
+.player-content-wrapper {
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-/* Contenedor de imagen + mensajes */
-.captain-panel-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 450px;
+  min-width: 500px;
   min-height: 500px;
   gap: 10px;
   align-items: flex-start;
@@ -1946,11 +1940,11 @@ body.settings {
   height: 80px;
 
   overflow-y: auto;
-  width: 100%;
+  width: 500px;
   padding-right: 5px;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 975px) {
   /* Reduce la altura general del header */
   .header-bar-batalla {
     height: 100px;
@@ -1990,6 +1984,95 @@ body.settings {
     border-radius: 6px;
     min-height: 28px;
     line-height: 1;
+  }
+
+  /* Contenedor principal de batalla en columna */
+  .battle-container {
+    flex-direction: column-reverse;
+    margin-top: 120px;
+    margin-bottom: 10px;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .board-title {
+    display: none;
+  }
+
+  /* Enemigo arriba */
+  .enemy-board-wrapper {
+    transform: scale(0.8); /* reducimos un poco */
+    transform-origin: top center;
+    align-items: start;
+  }
+
+  /* Player section debajo, en fila */
+  .player-section {
+    display: flex; /* fila */
+    flex-direction: row; /* horizontal */
+    align-items: flex-start;
+    gap: 1px;
+    width: 100%;
+  }
+
+  .board-grid-player {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .player-content-wrapper {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.1px;
+    min-height: auto;
+    margin-top: -60px;
+  }
+
+  /* Wrapper del capitán + mensajes */
+  .captain-panel-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 250px;
+    transform: scale(0.8);
+    transform-origin: top left;
+    height: auto;
+    gap: 5px;
+    padding: 2px;
+  }
+
+  .captain-img-batalla {
+    width: 50px;
+    height: 50px;
+  }
+
+  .mensajes-juego {
+    height: 80px;
+    width: 250px;
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  /* Tablero del jugador reducido */
+  #board-player {
+    width: calc(10 * 25px + 9 * 2px); /* celdas reducidas */
+    height: calc(10 * 25px + 9 * 2px);
+    margin-left: 0;
+    margin-right: 5px;
+  }
+
+  .board-grid-player {
+    grid-template-columns: repeat(10, 25px);
+    grid-template-rows: repeat(10, 25px);
+    gap: 2px;
+  }
+
+  .cell-player-batalla {
+    width: 25px;
+    height: 25px;
   }
 }
 
