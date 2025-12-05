@@ -969,7 +969,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const mensajesJuego = [];
 
-    const MAX_MESSAGES = 4;
+    const MAX_MESSAGES = 3;
 
     function mostrarMensajeCapitan(text) {
       mensajesJuego.push(text);
@@ -1126,6 +1126,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    // NO SE UTILIZA
     function crearOverlayDisparos() {
       const overlay = document.getElementById("enemy-overlay");
       overlay.innerHTML = "";
@@ -1185,20 +1186,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Función para manejar disparos
+
     function manejarDisparoJugador(x, y, overlayCell, celdaReal) {
       if (turno !== "jugador") {
         mostrarMensajeCapitan("¡Espere su turno, almirante!");
         return;
       }
 
-      if (celdaReal.dataset.disparado === "true") {
-        console.log("Celda ya disparada, ignorando...");
-        return;
-      }
+      if (celdaReal.dataset.disparado === "true") return;
 
-      console.log(`Procesando disparo en: ${x},${y}`);
-
-      // Marcar inmediatamente como disparado
       celdaReal.dataset.disparado = "true";
       overlayCell.classList.add("revealed");
 
@@ -1207,7 +1203,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const layer = document.getElementById("enemy-ships-layer");
 
       if (ocupado) {
-        // Impacto
+        // Crear contenedor para img o gif
         const fuego = document.createElement("div");
         fuego.classList.add("fire-hit-cell");
         const cellSize = 40,
@@ -1216,17 +1212,24 @@ document.addEventListener("DOMContentLoaded", () => {
         fuego.style.top = (y - 1) * (cellSize + gap) + "px";
         fuego.style.width = cellSize + "px";
         fuego.style.height = cellSize + "px";
-        fuego.innerHTML = "💥";
         fuego.style.display = "flex";
         fuego.style.justifyContent = "center";
         fuego.style.alignItems = "center";
-        fuego.style.fontSize = "24px";
+
+        // GIF o img explosión
+        const imgExp = document.createElement("img");
+        imgExp.src = "../assets/img/icons/explosion.png";
+        imgExp.style.width = "100%";
+        imgExp.style.height = "100%";
+        imgExp.style.objectFit = "contain";
+        fuego.appendChild(imgExp);
+
         layer.appendChild(fuego);
 
         mostrarMensajeCapitan(`¡Impacto en ${letters[x - 1]}${y}!`);
         actualizarPuntos("tocado");
 
-        // Verificar si el barco fue hundido
+        // Verificar si barco hundido
         const todasCeldas = Array.from(
           document.querySelectorAll(`.cell-enemy-batalla[data-ship='${barco}']`)
         );
@@ -1241,13 +1244,11 @@ document.addEventListener("DOMContentLoaded", () => {
           actualizarPuntos("hundido");
         }
       } else {
-        // Agua
         overlayCell.innerHTML = "";
-        overlayCell.style.color = "lightblue";
-        overlayCell.style.fontSize = "20px";
         overlayCell.style.display = "flex";
         overlayCell.style.justifyContent = "center";
         overlayCell.style.alignItems = "center";
+        overlayCell.style.fontSize = "20px";
 
         celdaReal.classList.add("miss");
         mostrarMensajeCapitan(`Agua en ${letters[x - 1]}${y}`);
@@ -1255,28 +1256,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Guardar disparo
-      const datosDisparo = {
-        idPartida: parseInt(idPartida),
-        propietario: "jugador",
-        x: x,
-        y: y,
-        resultado: ocupado ? "tocado" : "agua",
-      };
-
       fetch("../php/guardarDisparo.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datosDisparo),
+        body: JSON.stringify({
+          idPartida: parseInt(idPartida),
+          propietario: "jugador",
+          x: x,
+          y: y,
+          resultado: ocupado ? "tocado" : "agua",
+        }),
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.error) {
-            console.error("Error al guardar disparo:", data.error);
-          }
-        })
-        .catch((error) => {
-          console.error("Error en fetch:", error);
-        });
+        .then((r) => r.json())
+        .then((d) => d.error && console.error(d.error));
 
       // Verificar si todos los barcos enemigos están hundidos
       const todasCeldasEnemigo = Array.from(
@@ -1285,18 +1277,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const todosHundidos = todasCeldasEnemigo.every(
         (c) => c.dataset.disparado === "true"
       );
-
       if (todosHundidos) {
-        finalizarPartida(usuario); // El jugador ganó
-        return; // Salir para no continuar con el turno enemigo
+        finalizarPartida(usuario);
+        return;
       }
 
-      // Cambiar turno
       turno = "enemigo";
       actualizarTurno(turno);
       setTimeout(turnoEnemigo, 2200);
     }
 
+    // Turno enemigo con GIF o img
     function turnoEnemigo() {
       mostrarMensajeCapitan("El enemigo está disparando…");
       let x, y, celda;
@@ -1312,7 +1303,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (ocupado) {
         celda.classList.add("hit-player");
-        celda.innerHTML = "💥";
+        celda.innerHTML = "";
+        const imgExp = document.createElement("img");
+        imgExp.src = "../assets/img/icons/explosion.png";
+        imgExp.style.width = "100%";
+        imgExp.style.height = "100%";
+        imgExp.style.objectFit = "contain";
+        celda.appendChild(imgExp);
+
         mostrarMensajeCapitan(
           `¡Almirante! Han tocado nuestro ${celda.dataset.ship}!`
         );
@@ -1322,22 +1320,19 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarMensajeCapitan("El enemigo ha fallado.");
       }
 
-      // ===== Guardar disparo enemigo =====
       fetch("../php/guardarDisparo.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           idPartida: parseInt(document.getElementById("idPartida").value),
           propietario: "enemigo",
-
           x: x,
           y: y,
           resultado: ocupado ? "tocado" : "agua",
         }),
       })
         .then((r) => r.json())
-        .then((data) => console.log("Disparo enemigo guardado:", data))
-        .catch((err) => console.error("Error guardando disparo enemigo:", err));
+        .then((d) => console.log("Disparo enemigo guardado:", d));
 
       // Verificar si todos los barcos del jugador están hundidos
       const todasCeldasJugador = Array.from(
@@ -1346,11 +1341,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const todosHundidosJugador = todasCeldasJugador.every((c) =>
         c.classList.contains("disparado")
       );
-
       if (todosHundidosJugador) {
-        finalizarPartida("Enemigo"); // El jugador perdió
+        finalizarPartida("Enemigo");
         return;
       }
+
       turno = "jugador";
       mostrarMensajeCapitan("Es su turno, almirante.");
       actualizarTurno("jugador");
@@ -1535,8 +1530,15 @@ setTimeout(debugOverlay, 1000);*/
           fuego.style.top = (y - 1) * (cellSize + gap) + "px";
           fuego.style.width = cellSize + "px";
           fuego.style.height = cellSize + "px";
-          fuego.innerHTML = "💥";
-          layer.appendChild(fuego);
+
+          const imgExp = document.createElement("img");
+          imgExp.src = "../assets/img/icons/explosion.png";
+          imgExp.style.width = "100%";
+          imgExp.style.height = "100%";
+          imgExp.style.objectFit = "contain";
+
+          fuego.appendChild(imgExp); // Añado el GIF al div
+          layer.appendChild(fuego); // Y el div al layer
         } else {
           celda.classList.add("miss");
         }
@@ -1548,7 +1550,13 @@ setTimeout(debugOverlay, 1000);*/
 
         if (d.resultado === "tocado" || d.resultado === "hundido") {
           celda.classList.add("hit-player");
-          celda.innerHTML = "💥";
+          celda.innerHTML = ""; // limpiamos el contenido
+          const imgExp = document.createElement("img");
+          imgExp.src = "../assets/img/icons/explosion.png";
+          imgExp.style.width = "100%";
+          imgExp.style.height = "100%";
+          imgExp.style.objectFit = "contain";
+          celda.appendChild(imgExp); // ponemos el GIF en la celda
         } else {
           celda.classList.add("miss-player");
           celda.innerHTML = "🟦";
@@ -1556,35 +1564,27 @@ setTimeout(debugOverlay, 1000);*/
       }
     });
 
+    // Función para restaurar overlay del jugador
     function restaurarDisparosJugador(disparosJugador) {
       disparosJugador.forEach((d) => {
         const x = d.posX;
         const y = d.posY;
 
-        // Overlay cell
         const overlayCell = document.querySelector(
           `#enemy-overlay .overlay-cell[data-x="${x}"][data-y="${y}"]`
         );
         if (!overlayCell) return;
 
-        // Marcar como disparado (transparente)
         overlayCell.classList.add("revealed");
+        overlayCell.innerHTML = ""; // limpiar contenido previo
 
-        // Mostrar fuego o agua
         if (d.resultado === "tocado" || d.resultado === "hundido") {
-          overlayCell.innerHTML = "💥";
-          overlayCell.style.color = "yellow";
-          overlayCell.style.fontSize = "24px";
-          overlayCell.style.display = "flex";
-          overlayCell.style.justifyContent = "center";
-          overlayCell.style.alignItems = "center";
-        } else {
-          overlayCell.innerHTML = "";
-          overlayCell.style.color = "white";
-          overlayCell.style.fontSize = "16px";
-          overlayCell.style.display = "flex";
-          overlayCell.style.justifyContent = "center";
-          overlayCell.style.alignItems = "center";
+          const img = document.createElement("img");
+          img.src = "../assets/img/icons/explosion.png";
+          img.style.width = "40px";
+          img.style.height = "40px";
+          img.style.objectFit = "contain";
+          overlayCell.appendChild(img);
         }
       });
     }

@@ -1734,9 +1734,9 @@ body.settings {
 /* El contenedor que tiene el tablero y la capa de barcos */
 .enemy-board-with-ships {
   position: relative;
-  width: calc(10 * 40px + 9 * 3px); /* solo cells + gaps, sin padding */
+  width: calc(10 * 40px + 9 * 3px);
   height: calc(10 * 40px + 9 * 3px);
-  padding: 0; /* padding eliminado */
+  padding: 0;
   box-sizing: content-box;
   display: inline-block;
 }
@@ -1748,8 +1748,13 @@ body.settings {
   border: 1px solid #144f8a;
   cursor: pointer;
 }
+
 .cell-enemy-batalla.cell-ship {
   background: gray !important;
+}
+
+.cell-enemy-batalla.ship-sunk {
+  background: black !important;
 }
 
 .cell-enemy-batalla:hover {
