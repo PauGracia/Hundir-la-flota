@@ -1,24 +1,35 @@
-Perfecto, aquí tienes un README ampliado y más completo, integrando estadísticas, perfiles, estado del juego y funcionalidades en desarrollo:
+Aquí tienes una versión actualizada y mejorada del README, incorporando:
+
+✔️ Que el juego ya es completamente jugable
+✔️ Que el enemigo tiene **IA inteligente** (hunt → target → remate)
+✔️ Que maneja barcos especiales como portaaviones 2×5
+✔️ Que evita casillas prohibidas alrededor de barcos hundidos
+✔️ Mejor redacción y estructura general
+
+Puedes copiarlo tal cual:
 
 ---
 
 # Hundir la Flota 🎯⚓
 
-**Hundir la Flota** es un juego web basado en el clásico juego de batalla naval, donde los jugadores colocan sus barcos y tratan de hundir los de sus oponentes. Este proyecto se encuentra actualmente en **desarrollo**, pero ya permite iniciar partidas, jugar contra enemigos y visualizar estadísticas básicas. El objetivo es ofrecer una experiencia interactiva y visualmente atractiva directamente desde el navegador.
+**Hundir la Flota** es un juego web totalmente jugable basado en el clásico juego de batalla naval.
+El jugador coloca su flota, elige un almirante enemigo y se enfrenta a una **IA avanzada** que analiza impactos, sigue patrones, remata barcos y evita disparos inútiles.
+
+El objetivo del proyecto es ofrecer una experiencia fluida, divertida y visualmente atractiva, con estadísticas reales, sistema de perfiles y partidas continuables.
 
 ---
 
 ## 🛠 Tecnologías utilizadas
 
-El proyecto está desarrollado con tecnologías web modernas y convencionales:
+El proyecto está desarrollado con tecnologías web modernas:
 
-- **HTML5** – Estructura de las páginas y contenido semántico.
-- **CSS3** – Estilos visuales, animaciones y responsive design.
-- **JavaScript (ES6)** – Interactividad, validaciones de formularios, manejo dinámico de contenido y modales.
-- **PHP** – Lógica del servidor, sesiones, gestión de usuarios y conexión a la base de datos.
-- **MySQL / MariaDB** – Base de datos para usuarios, partidas, estadísticas y almirantes.
-- **AJAX / Fetch API** – Interacciones dinámicas sin recargar la página.
-- **Google Fonts** – Tipografía personalizada (`Russo One`) para el estilo naval del juego.
+- **HTML5** – Estructura y semántica.
+- **CSS3** – Estilos, diseño y animaciones.
+- **JavaScript (ES6)** – Lógica del juego, IA enemiga, interfaz y validaciones.
+- **PHP** – Backend, sesiones, control de partidas y estadísticas.
+- **MySQL / MariaDB** – Base de datos del usuario, almirantes, partidas y rankings.
+- **Fetch API / AJAX** – Comunicación asíncrona con el servidor.
+- **Google Fonts** – Tipografía temática militar (`Russo One`).
 
 ---
 
@@ -27,13 +38,13 @@ El proyecto está desarrollado con tecnologías web modernas y convencionales:
 ```
 Hundir-la-flota/
 ├─ assets/
-│  ├─ css/        # Archivos de estilos
-│  ├─ js/         # Scripts JS para interactividad y lógica del juego
-│  └─ img/        # Imágenes de barcos, almirantes, perfiles y fondos
-├─ php/           # Backend: conexión a DB, manejo de partidas, usuarios, estadísticas
-├─ juego/         # Archivos del juego: HTML, JS y assets específicos
-├─ index.php      # Página de login / registro
-├─ menuJuego.php  # Menú principal del juego
+│  ├─ css/        # Estilos y efectos
+│  ├─ js/         # Lógica, IA y scripts interactivos
+│  └─ img/        # Barcos, iconos, avatares y fondos
+├─ php/           # Backend y gestión de datos
+├─ juego/         # Pantallas y archivos del tablero de batalla
+├─ index.php      # Login / Registro
+├─ menuJuego.php  # Menú principal
 └─ README.md      # Documentación del proyecto
 ```
 
@@ -41,74 +52,81 @@ Hundir-la-flota/
 
 ## ⚙ Funcionalidades actuales
 
-- **Registro e inicio de sesión** de usuarios.
-- **Perfiles de usuario** con información personal, foto de perfil y fecha de registro.
-- **Estadísticas de partidas**: victorias del usuario y de los almirantes, historial contra cada almirante.
-- **Menú principal** que permite:
+### 🎮 Juego completamente funcional
 
-  - Iniciar partida nueva.
-  - Continuar partidas guardadas.
-  - Consultar ranking de jugadores (en desarrollo).
-  - Ajustes y configuración del usuario.
+- Colocación manual de barcos.
+- Tablero animado y efectos de explosión/agua.
+- Sistema de turnos.
+- Detección automática de **tocado**, **hundido** y **fin de partida**.
+- Guardado y carga de partidas en cualquier momento.
+- Sonidos y avisos del capitán en cada acción.
 
-- **Música de fondo** persistente mediante `iframe`.
-- **Mensajes dinámicos y notificaciones** dentro del juego.
-- **Validación básica de formularios** y seguridad mínima en el backend.
-- **Selección aleatoria de almirantes enemigos** con su imagen y nombre legible.
-- **Control de partidas**: las partidas finalizadas no aparecen en la lista de “cargar partida”.
+### 🤖 IA Inteligente del enemigo
+
+La máquina no es aleatoria. Implementa comportamientos reales del Battleship moderno:
+
+- **Modo búsqueda (random):** dispara en casillas estratégicas evitando repetidos.
+- **Modo hunt:** cuando toca un barco, analiza las casillas libres alrededor.
+- **Modo target:** deduce la orientación del barco (horizontal, vertical o especial como portaaviones 2×5).
+- **Remate completo:** no abandona un barco hasta hundirlo.
+- **Zonas prohibidas:** una vez hundido, marca automáticamente todas las casillas adyacentes como imposibles y no dispara allí (como en las reglas originales).
+- Compatible con barcos especiales como portaaviones de **2×5**, destructores verticales, etc.
+- Funciona correctamente incluso con partidas guardadas y tableros parcialmente descubiertos.
+
+### 👤 Sistema de usuario
+
+- Registro e inicio de sesión.
+- Perfil con foto, estadísticas y fecha de registro.
+- Puntuaciones acumuladas.
+- Música persistente entre pantallas.
+
+### 📊 Estadísticas y almirantes
+
+- Se guarda cada victoria del jugador.
+- Los almirantes enemigos también registran sus victorias.
+- Historial de partidas contra cada almirante.
+- Vista de estadísticas en `perfil.php`.
 
 ---
 
-## 🏆 Control de estadísticas y perfiles
+## 🚀 Estado del proyecto
 
-- Cada usuario tiene un **contador de victorias totales**.
-- Se registran las victorias de los **almirantes enemigos** frente a cada usuario.
-- Se puede consultar el historial de partidas con cada almirante, mostrando:
+Actualmente el juego está **totalmente jugable**, estable y completo en su núcleo:
 
-  - Número de victorias del usuario.
-  - Número de victorias del almirante.
+✔️ Tablero
+✔️ IA enemiga avanzada
+✔️ Gestión de partidas
+✔️ Finalización y guardado de resultados
+✔️ Estadísticas y perfiles
 
-- Las estadísticas se muestran en **perfil.php** con gráficos simples o listados de almirantes.
+En desarrollo:
 
----
-
-## 🚀 Estado del juego
-
-- **Ya funcional**: se puede colocar barcos, disparar, finalizar partidas y ver resultados.
-- **En desarrollo**:
-
-  - Ranking global de jugadores.
-  - Mejoras en la interfaz y animaciones del tablero.
-  - Mensajes de victoria/derrota con animaciones.
-  - Implementación de niveles o dificultad de almirantes.
-  - Guardado y carga de partidas más avanzado.
-  - Sonidos y efectos adicionales.
+- Ranking global entre jugadores.
+- Niveles de dificultad para los almirantes.
+- Animaciones avanzadas y mejoras visuales.
+- Interfaz responsive más refinada.
+- Nuevos efectos de sonido.
 
 ---
 
 ## 🔧 Instalación local
 
-1. Clonar este repositorio en un servidor local (XAMPP, WAMP o similar).
-2. Crear la base de datos MySQL y ejecutar los scripts de creación de tablas (`usuarios`, `partidas`, `almirantes`, etc.).
-3. Configurar los datos de conexión en `php/conexion.php`.
-4. Abrir `http://localhost/Hundir-la-flota/index.php` en tu navegador.
-5. Crear un usuario o iniciar sesión con una cuenta existente.
+1. Clonar el repositorio en un entorno local (XAMPP, WAMP, Laragon…).
+2. Crear la base de datos y tablas según el dump del proyecto.
+3. Configurar la conexión en `php/conexion.php`.
+4. Iniciar sesión en `http://localhost/Hundir-la-flota/index.php`.
+5. Crear usuario y comenzar a jugar.
 
 ---
 
-## ⚠ Estado del proyecto
+## ⚠ Nota
 
-Este proyecto **está en desarrollo**. Algunas funcionalidades pueden no estar completas y el diseño podría cambiar.
-Se prioriza la jugabilidad y el control de estadísticas antes de pulir la interfaz final.
+El proyecto se encuentra en desarrollo activo. Algunas características visuales o de menú pueden cambiar con el tiempo, pero **el núcleo jugable ya es sólido y funcional**.
 
 ---
 
 ## 📜 Licencia
 
-Este proyecto es **personal / educativo** y no cuenta con licencia específica. Se permite su uso para fines de aprendizaje o demostración.
-
----
-
-💡 **Nota**: Se recomienda jugar en escritorio para mejor experiencia, aunque el diseño es parcialmente responsive.
+Proyecto de uso personal y educativo. Se permite su uso libre con fines formativos.
 
 ---

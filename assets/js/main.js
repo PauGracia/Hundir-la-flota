@@ -1001,19 +1001,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // ==========================
-    // FUNCIONES
-    // ==========================
-    /*function mostrarMensaje(text, isError = false) {
-      const msg = document.getElementById("mensaje");
-      msg.textContent = text;
-      msg.className = isError ? "mensaje error" : "mensaje";
-      setTimeout(() => {
-        msg.textContent = "";
-        msg.className = "mensaje";
-      }, 3500);
-    }*/
-
     const mensajesJuego = [];
 
     const MAX_MESSAGES = 3;
@@ -1061,7 +1048,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
     }
-
+    // Para pintar los bordes según turno
     function actualizarTurno(turnoActual) {
       const playerHeader = document.getElementById("player-header-panel");
       const attackerHeader = document.getElementById("attacker-header-panel");
@@ -1348,52 +1335,411 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(turnoEnemigo, 2200);
     }
 
-    // Turno enemigo con GIF o img
+    // ---------- IA Enemy memory (asegúrate de no duplicar si ya existen) ----------
+    let enemyTargets = []; // array de {x, y} tocados del objetivo actual
+    let enemyPossibleShots = []; // lista de celdas candidatas (cuando en "hunt")
+    let enemyMode = "random"; // "random" | "hunt" | "target"
+
+    // ---------- Helpers ----------
+
+    /** Devuelve true si la celda existe y no está disparada ni prohibida */
+    function esCeldaDisparable(x, y) {
+      if (x < 1 || x > 10 || y < 1 || y > 10) return false;
+      const cel = document.getElementById(`player-${x}-${y}`);
+      if (!cel) return false;
+      if (cel.classList.contains("disparado")) return false;
+      if (cel.classList.contains("prohibida")) return false;
+      return true;
+    }
+
+    /** Devuelve adyacentes dentro del tablero (no filtra disparadas/prohibidas) */
+    function obtenerAdyacentes(x, y) {
+      return [
+        { x: x - 1, y: y },
+        { x: x + 1, y: y },
+        { x: x, y: y - 1 },
+        { x: x, y: y + 1 },
+      ].filter((p) => p.x >= 1 && p.x <= 10 && p.y >= 1 && p.y <= 10);
+    }
+
+    /** Filtra adyacentes descartando ya disparadas/prohibidas/y en enemyTargets */
+    function obtenerAdyacentesValidos(x, y) {
+      return obtenerAdyacentes(x, y).filter((pos) => {
+        // No repetir posiciones que ya formen parte de enemyTargets
+        if (
+          enemyTargets.some(
+            (t) => Number(t.x) === pos.x && Number(t.y) === pos.y
+          )
+        )
+          return false;
+        // No disparar sobre "prohibida" o "disparado"
+        return esCeldaDisparable(pos.x, pos.y);
+      });
+    }
+
+    /**
+     * Deducción flexible de dirección/next shot a partir de enemyTargets.
+     * Devuelve {dx, dy, candidatoX, candidatoY} o null si no puede decidir.
+     * Intenta elegir un extremo libre del bounding-box (soporta 1D y 2D compacto).
+     */
+    function deducirSiguienteDesdeTargets() {
+      if (!enemyTargets || enemyTargets.length < 1) return null;
+
+      // normalizar y calcular bounding box
+      const pts = enemyTargets.map((t) => ({ x: Number(t.x), y: Number(t.y) }));
+      const minX = Math.min(...pts.map((p) => p.x));
+      const maxX = Math.max(...pts.map((p) => p.x));
+      const minY = Math.min(...pts.map((p) => p.y));
+      const maxY = Math.max(...pts.map((p) => p.y));
+
+      // Si parecen estar en una columna (vertical preferente)
+      if (minX === maxX) {
+        // intentar abajo desde maxY
+        if (esCeldaDisparable(minX, maxY + 1)) {
+          return { dx: 0, dy: 1, candidatoX: minX, candidatoY: maxY + 1 };
+        }
+        // intentar arriba desde minY
+        if (esCeldaDisparable(minX, minY - 1)) {
+          return { dx: 0, dy: -1, candidatoX: minX, candidatoY: minY - 1 };
+        }
+        // si no hay, devolver null
+        return null;
+      }
+
+      // Si parecen estar en una fila (horizontal preferente)
+      if (minY === maxY) {
+        if (esCeldaDisparable(maxX + 1, minY)) {
+          return { dx: 1, dy: 0, candidatoX: maxX + 1, candidatoY: minY };
+        }
+        if (esCeldaDisparable(minX - 1, minY)) {
+          return { dx: -1, dy: 0, candidatoX: minX - 1, candidatoY: minY };
+        }
+        return null;
+      }
+
+      // Caso 2D compacto (p.ej. portaaviones 2xN): escoger orientación mayor
+      const ancho = maxX - minX + 1;
+      const alto = maxY - minY + 1;
+      if (alto >= ancho) {
+        // intentar vertical por columna(s) con hits
+        // buscar la columna con más hits
+        const cols = {};
+        pts.forEach((p) => (cols[p.x] = (cols[p.x] || 0) + 1));
+        const colKeys = Object.keys(cols)
+          .map((n) => Number(n))
+          .sort((a, b) => cols[b] - cols[a]);
+        for (const cx of colKeys) {
+          // extremos de esa columna
+          const colPts = pts
+            .filter((p) => p.x === cx)
+            .map((p) => p.y)
+            .sort((a, b) => a - b);
+          const top = colPts[0],
+            bottom = colPts[colPts.length - 1];
+          if (esCeldaDisparable(cx, bottom + 1))
+            return { dx: 0, dy: 1, candidatoX: cx, candidatoY: bottom + 1 };
+          if (esCeldaDisparable(cx, top - 1))
+            return { dx: 0, dy: -1, candidatoX: cx, candidatoY: top - 1 };
+        }
+      } else {
+        // intentar horizontal por fila(s) con hits
+        const rows = {};
+        pts.forEach((p) => (rows[p.y] = (rows[p.y] || 0) + 1));
+        const rowKeys = Object.keys(rows)
+          .map((n) => Number(n))
+          .sort((a, b) => rows[b] - rows[a]);
+        for (const ry of rowKeys) {
+          const rowPts = pts
+            .filter((p) => p.y === ry)
+            .map((p) => p.x)
+            .sort((a, b) => a - b);
+          const left = rowPts[0],
+            right = rowPts[rowPts.length - 1];
+          if (esCeldaDisparable(right + 1, ry))
+            return { dx: 1, dy: 0, candidatoX: right + 1, candidatoY: ry };
+          if (esCeldaDisparable(left - 1, ry))
+            return { dx: -1, dy: 0, candidatoX: left - 1, candidatoY: ry };
+        }
+      }
+
+      return null;
+    }
+
+    /** Marca zona prohibida (incluye diagonales) alrededor de las celdas del barco hundido */
+    function marcarZonaProhibida(barcoCeldas) {
+      // barcoCeldas: NodeList / array de elementos .cell-player-batalla del barco hundido
+      barcoCeldas.forEach((celda) => {
+        const cx = Number(
+          celda.dataset.x ??
+            celda.getAttribute("data-x") ??
+            celda.dataset.coordX
+        );
+        const cy = Number(
+          celda.dataset.y ??
+            celda.getAttribute("data-y") ??
+            celda.dataset.coordY
+        );
+        for (let dx = -1; dx <= 1; dx++) {
+          for (let dy = -1; dy <= 1; dy++) {
+            const nx = cx + dx;
+            const ny = cy + dy;
+            if (nx >= 1 && nx <= 10 && ny >= 1 && ny <= 10) {
+              const cel = document.getElementById(`player-${nx}-${ny}`);
+              if (cel && !cel.classList.contains("disparado")) {
+                cel.classList.add("prohibida");
+              }
+            }
+          }
+        }
+      });
+    }
+
+    /** Elige una celda aleatoria válida (ni disparada ni prohibida) sin bucle infinito */
+    function elegirAleatoriaValida() {
+      const candidatos = [];
+      for (let i = 1; i <= 10; i++) {
+        for (let j = 1; j <= 10; j++) {
+          if (esCeldaDisparable(i, j)) candidatos.push({ x: i, y: j });
+        }
+      }
+      if (candidatos.length === 0) return null;
+      return candidatos[Math.floor(Math.random() * candidatos.length)];
+    }
+
+    // Turno enemigo con IA
     function turnoEnemigo() {
       mostrarMensajeCapitan("El enemigo está disparando…");
+
       let x, y, celda;
 
-      do {
-        x = Math.floor(Math.random() * 10) + 1;
-        y = Math.floor(Math.random() * 10) + 1;
+      // --- SELECCIÓN DE DISPARO SEGÚN MODO ---
+      if (enemyMode === "random") {
+        const candidato = elegirAleatoriaValida();
+        if (!candidato) {
+          // si no quedan celdas válidas, termina (seguridad)
+          console.warn("No quedan celdas válidas para disparar.");
+          turno = "jugador";
+          mostrarMensajeCapitan("Es su turno, almirante.");
+          actualizarTurno("jugador");
+          return;
+        }
+        x = candidato.x;
+        y = candidato.y;
         celda = document.getElementById(`player-${x}-${y}`);
-      } while (celda.classList.contains("disparado"));
+      } else if (enemyMode === "hunt") {
+        // Si no hay posibles, construir desde TODOS los enemyTargets
+        if (enemyPossibleShots.length === 0) {
+          // agregamos adyacentes válidos de cada target
+          const setPos = new Map();
+          for (const t of enemyTargets) {
+            const ady = obtenerAdyacentesValidos(Number(t.x), Number(t.y));
+            for (const p of ady) setPos.set(`${p.x}-${p.y}`, p);
+          }
+          enemyPossibleShots = Array.from(setPos.values());
+
+          // Si no se generan posibles intentar deducir desde targets
+          if (enemyPossibleShots.length === 0) {
+            const ded = deducirSiguienteDesdeTargets();
+            if (ded && ded.candidatoX && ded.candidatoY) {
+              x = ded.candidatoX;
+              y = ded.candidatoY;
+              celda = document.getElementById(`player-${x}-${y}`);
+              // si por alguna razón no válida, fallback a random
+              if (
+                !celda ||
+                celda.classList.contains("disparado") ||
+                celda.classList.contains("prohibida")
+              ) {
+                enemyMode = "random";
+                enemyTargets = [];
+                enemyPossibleShots = [];
+                return setTimeout(turnoEnemigo, 10);
+              }
+            } else {
+              // no puede deducir reinicio suave
+              enemyMode = "random";
+              enemyTargets = [];
+              enemyPossibleShots = [];
+              return setTimeout(turnoEnemigo, 10);
+            }
+          }
+        }
+
+        // Si aún no asignamos x,y tomamos la primera
+        if (!celda) {
+          // sacar la primera válida así filtramos
+          while (enemyPossibleShots.length > 0) {
+            const next = enemyPossibleShots.shift();
+            if (esCeldaDisparable(next.x, next.y)) {
+              x = next.x;
+              y = next.y;
+              celda = document.getElementById(`player-${x}-${y}`);
+              break;
+            }
+            // si next inválido, continuar
+          }
+          if (!celda) {
+            // no quedaron en la lista, intentar deducir o fallback
+            const ded2 = deducirSiguienteDesdeTargets();
+            if (ded2 && ded2.candidatoX && ded2.candidatoY) {
+              x = ded2.candidatoX;
+              y = ded2.candidatoY;
+              celda = document.getElementById(`player-${x}-${y}`);
+              if (
+                !celda ||
+                celda.classList.contains("disparado") ||
+                celda.classList.contains("prohibida")
+              ) {
+                enemyMode = "random";
+                enemyTargets = [];
+                enemyPossibleShots = [];
+                return setTimeout(turnoEnemigo, 10);
+              }
+            } else {
+              enemyMode = "random";
+              enemyTargets = [];
+              enemyPossibleShots = [];
+              return setTimeout(turnoEnemigo, 10);
+            }
+          }
+        }
+      } else if (enemyMode === "target") {
+        // Intentar deducir el siguiente tiro por orientación/extremos
+        const ded = deducirSiguienteDesdeTargets();
+        if (!ded || !ded.candidatoX || !ded.candidatoY) {
+          // no podemos deducir, volver a hunt si hay targets o a random
+          if (enemyTargets.length > 0) {
+            enemyMode = "hunt";
+            enemyPossibleShots = []; // forzar recomputo
+            return setTimeout(turnoEnemigo, 10);
+          } else {
+            enemyMode = "random";
+            return setTimeout(turnoEnemigo, 10);
+          }
+        }
+
+        x = ded.candidatoX;
+        y = ded.candidatoY;
+        celda = document.getElementById(`player-${x}-${y}`);
+        if (
+          !celda ||
+          celda.classList.contains("disparado") ||
+          celda.classList.contains("prohibida")
+        ) {
+          // intentar el otro extremo si hay (por seguridad), sino fallback
+          if (enemyTargets.length > 1) {
+            // invertir sentido buscando el extremo opuesto
+            // construimos bounding box y probamos el extremo contrario
+            const pts = enemyTargets.map((t) => ({
+              x: Number(t.x),
+              y: Number(t.y),
+            }));
+            const minX = Math.min(...pts.map((p) => p.x));
+            const maxX = Math.max(...pts.map((p) => p.x));
+            const minY = Math.min(...pts.map((p) => p.y));
+            const maxY = Math.max(...pts.map((p) => p.y));
+            let altX = x,
+              altY = y;
+            if (ded.dx !== 0) {
+              // horizontal. probar otro extremo
+              altX = ded.dx > 0 ? minX - 1 : maxX + 1;
+              altY = pts[0].y;
+            } else {
+              // vertical
+              altY = ded.dy > 0 ? minY - 1 : maxY + 1;
+              altX = pts[0].x;
+            }
+            if (esCeldaDisparable(altX, altY)) {
+              x = altX;
+              y = altY;
+              celda = document.getElementById(`player-${x}-${y}`);
+            } else {
+              enemyMode = "random";
+              enemyTargets = [];
+              enemyPossibleShots = [];
+              return setTimeout(turnoEnemigo, 10);
+            }
+          } else {
+            enemyMode = "random";
+            enemyTargets = [];
+            enemyPossibleShots = [];
+            return setTimeout(turnoEnemigo, 10);
+          }
+        }
+      }
+
+      // Aplicar disparo
+      if (!celda) {
+        console.error(
+          "No se pudo determinar celda para disparar en turnoEnemigo."
+        );
+        enemyMode = "random";
+        enemyTargets = [];
+        enemyPossibleShots = [];
+        turno = "jugador";
+        actualizarTurno("jugador");
+        return;
+      }
 
       celda.classList.add("disparado");
       const ocupado = celda.dataset.occupied === "true";
 
       if (ocupado) {
         celda.classList.add("hit-player");
-        // Sonido de tocado
         if (sonidoTocado) {
           sonidoTocado.currentTime = 0;
           sonidoTocado.play();
         }
+
+        // efecto visual
         celda.innerHTML = "";
         const imgExp = document.createElement("img");
         imgExp.src = "../assets/img/icons/explosion.png";
         imgExp.style.width = "100%";
         imgExp.style.height = "100%";
-        imgExp.style.objectFit = "contain";
         celda.appendChild(imgExp);
 
         mostrarMensajeCapitan(
           `¡Almirante! Han tocado nuestro ${celda.dataset.ship}!`
         );
-        // Si está hundido
-        const todasCeldasBarco = Array.from(
+        // registrar tocado
+        enemyTargets.push({ x: Number(x), y: Number(y) });
+
+        // decidir modo: si hay 1 hunt, si hay >=2 target
+        if (enemyTargets.length === 1) enemyMode = "hunt";
+        else enemyMode = "target";
+
+        // comprobar hundimiento
+        const todas = Array.from(
           document.querySelectorAll(
             `.cell-player-batalla[data-ship='${celda.dataset.ship}']`
           )
         );
-        const hundido = todasCeldasBarco.every((c) =>
-          c.classList.contains("disparado")
-        );
-        if (hundido && sonidoHundido) {
-          sonidoHundido.currentTime = 0;
-          sonidoHundido.play();
+        const hundido = todas.every((c) => c.classList.contains("disparado"));
+
+        if (hundido) {
+          if (sonidoHundido) {
+            sonidoHundido.currentTime = 0;
+            sonidoHundido.play();
+          }
+
+          mostrarMensajeCapitan(
+            `¡Almirante! Nos han hundido el ${celda.dataset.ship}!`
+          );
+
+          // marcar zona prohibida alrededor del barco hundido
+          marcarZonaProhibida(todas);
+
+          // resetear IA objetivo al hundir barco
+          enemyMode = "random";
+          enemyTargets = [];
+          enemyPossibleShots = [];
+        } else {
+          // Si no hundido, mantenemos enemyMode (hunt/target) y continuaremos en próximos turnos
+          // NO reseteamos ni volvemos a random: rematar hasta hundir.
         }
       } else {
+        // MISS
         celda.classList.add("miss-player");
         celda.innerHTML = "🟦";
         if (sonidoAgua) {
@@ -1403,6 +1749,7 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarMensajeCapitan("El enemigo ha fallado.");
       }
 
+      // --- Guardar disparo en BD ---
       fetch("../php/guardarDisparo.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1415,9 +1762,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }),
       })
         .then((r) => r.json())
-        .then((d) => console.log("Disparo enemigo guardado:", d));
+        .then((d) => d.error && console.error(d.error));
 
-      // Verificar si todos los barcos del jugador están hundidos
+      // --- Verificar derrota ---
       const todasCeldasJugador = Array.from(
         document.querySelectorAll('.cell-player-batalla[data-occupied="true"]')
       );
@@ -1429,6 +1776,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Pasar turno al jugador
       turno = "jugador";
       mostrarMensajeCapitan("Es su turno, almirante.");
       actualizarTurno("jugador");
@@ -1466,6 +1814,7 @@ document.addEventListener("DOMContentLoaded", () => {
           enemigoNombre: enemigoNombre, // nombre del enemigo cargado en la partida
           enemigoFoto: elegido,
           enemigoId: enemigoId,
+          tiempo: tiempo,
         }),
       })
         .then((r) => r.json())
@@ -1679,7 +2028,7 @@ setTimeout(debugOverlay, 1000);*/
 
     //////////////////////////////////////////////////////
 
-    // VForzar victoria Jugador
+    // Forzar victoria Jugador
     //finalizarPartida(usuario);
 
     // Forzar victoria Enemigo
