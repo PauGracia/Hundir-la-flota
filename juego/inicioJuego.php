@@ -34,6 +34,10 @@ $usuario = $result->fetch_assoc();
       href="../assets/css/styles.css?v=<?php echo time(); ?>"
     />
   </head>
+  <audio id="sonidoClick" src="../assets/sounds/click.mp3" preload="auto"></audio>
+  <audio id="sonidoSeleccionBarco" src="../assets/sounds/bob.mp3" preload="auto"></audio>
+  <audio id="sonidoRotarBarco" src="../assets/sounds/rotar.mp3" preload="auto"></audio>
+
 
   <body class="body-inicio-juego">
     <!-- Solo para pasar la info a la bbdd -->
@@ -42,8 +46,8 @@ $usuario = $result->fetch_assoc();
     <!-- Panel superior -->
     <div class="header-bar">
       <!-- BOTÓN VOLVER -->
-      <a href="menuJuego.php" class="header-btn">Salir</a>
-
+     <button class="header-btn" data-href="menuJuego.php">Salir</button>
+ 
       <!-- PANEL CAPITÁN -->
       <div class="captain-panel">
         <img src="../assets/img/imagenes/capitan.png" class="captain-img" />

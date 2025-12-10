@@ -1074,10 +1074,6 @@ body.settings {
   transition: 0.2s;
 }
 
-.header-btn:hover {
-  background: #1578d1;
-}
-
 .header-btn.battle {
   background: rgba(0, 0, 0, 0.6);
 }
@@ -1586,10 +1582,6 @@ body.settings {
   font-weight: bold;
   font-size: 1.1rem;
   transition: 0.2s;
-}
-
-.header-btn-batalla:hover {
-  background: #1578d1;
 }
 
 .header-btn-batalla.battle {

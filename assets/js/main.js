@@ -41,6 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const sonidoHover = document.getElementById("sonidoHover");
   const sonidoClick = document.getElementById("sonidoClick");
+  const sonidoAgua = document.getElementById("sonidoAgua");
+  const sonidoTocado = document.getElementById("sonidoTocado");
+  const sonidoHundido = document.getElementById("sonidoHundido");
 
   // Audio fantasma
   const audioUnlock = new Audio();
@@ -140,6 +143,50 @@ document.addEventListener("DOMContentLoaded", () => {
         sonidoClick.play();
       }
       setTimeout(() => form.submit(), 200);
+    });
+  });
+
+  /* ========== CLICK UNIVERSAL EN <button data-href> ========== */
+  document.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const destino = btn.dataset.href;
+
+      if (!destino) return;
+
+      e.preventDefault();
+
+      if (sonidoClick) {
+        sonidoClick.currentTime = 0;
+        sonidoClick.play();
+      }
+
+      setTimeout(() => {
+        window.location.href = destino;
+      }, 200);
+    });
+  });
+
+  const sonidoSeleccionBarco = document.getElementById("sonidoSeleccionBarco");
+  const sonidoRotarBarco = document.getElementById("sonidoRotarBarco");
+
+  // Sonido al seleccionar un barco
+  document.querySelectorAll(".ship-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (sonidoSeleccionBarco) {
+        sonidoSeleccionBarco.currentTime = 0;
+        sonidoSeleccionBarco.play();
+      }
+    });
+  });
+
+  // Sonido al rotar un barco
+  document.querySelectorAll(".ship-btn .rotate-btn").forEach((span) => {
+    span.addEventListener("click", (e) => {
+      e.stopPropagation(); // Evita que se dispare el click del barco
+      if (sonidoRotarBarco) {
+        sonidoRotarBarco.currentTime = 0;
+        sonidoRotarBarco.play();
+      }
     });
   });
 
@@ -811,7 +858,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (shipsPlaced.length !== 6) {
         mostrarMensaje(
           "Debe colocar todos los barcos antes de iniciar la batalla",
-          true
+          "info"
         );
         return;
       }
@@ -1126,7 +1173,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // NO SE UTILIZA
     function crearOverlayDisparos() {
       const overlay = document.getElementById("enemy-overlay");
       overlay.innerHTML = "";
@@ -1237,13 +1283,28 @@ document.addEventListener("DOMContentLoaded", () => {
           (c) => c.dataset.disparado === "true"
         );
 
+        // Sonido de tocado
+        if (sonidoTocado) {
+          sonidoTocado.currentTime = 0;
+          sonidoTocado.play();
+        }
+
         if (hundido) {
+          if (sonidoHundido) {
+            sonidoHundido.currentTime = 0;
+            sonidoHundido.play();
+          }
           mostrarMensajeCapitan(
             `¡Almirante! Hemos hundido el ${barco} enemigo!`
           );
           actualizarPuntos("hundido");
         }
       } else {
+        // Sonido de agua
+        if (sonidoAgua) {
+          sonidoAgua.currentTime = 0;
+          sonidoAgua.play();
+        }
         overlayCell.innerHTML = "";
         overlayCell.style.display = "flex";
         overlayCell.style.justifyContent = "center";
@@ -1303,6 +1364,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (ocupado) {
         celda.classList.add("hit-player");
+        // Sonido de tocado
+        if (sonidoTocado) {
+          sonidoTocado.currentTime = 0;
+          sonidoTocado.play();
+        }
         celda.innerHTML = "";
         const imgExp = document.createElement("img");
         imgExp.src = "../assets/img/icons/explosion.png";
@@ -1314,9 +1380,26 @@ document.addEventListener("DOMContentLoaded", () => {
         mostrarMensajeCapitan(
           `¡Almirante! Han tocado nuestro ${celda.dataset.ship}!`
         );
+        // Si está hundido
+        const todasCeldasBarco = Array.from(
+          document.querySelectorAll(
+            `.cell-player-batalla[data-ship='${celda.dataset.ship}']`
+          )
+        );
+        const hundido = todasCeldasBarco.every((c) =>
+          c.classList.contains("disparado")
+        );
+        if (hundido && sonidoHundido) {
+          sonidoHundido.currentTime = 0;
+          sonidoHundido.play();
+        }
       } else {
         celda.classList.add("miss-player");
         celda.innerHTML = "🟦";
+        if (sonidoAgua) {
+          sonidoAgua.currentTime = 0;
+          sonidoAgua.play();
+        }
         mostrarMensajeCapitan("El enemigo ha fallado.");
       }
 
@@ -1450,6 +1533,11 @@ setTimeout(debugOverlay, 1000);*/
     document
       .getElementById("guardarPartida")
       .addEventListener("click", async () => {
+        // Reproducir sonido de click
+        if (sonidoClick) {
+          sonidoClick.currentTime = 0;
+          sonidoClick.play().catch(() => {});
+        }
         const idPartida = document.getElementById("idPartida").value;
 
         // Recolectar estado actual de los disparos
