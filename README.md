@@ -252,6 +252,10 @@ Aquí tienes **solo la parte corregida**, tal como me pediste:
 
 ---
 
+<div align="center">
+  <img src="assets/imgReadme/perfil.png" alt="perfil de Hundir la Flota" width="400">
+</div>
+
 # ⚠ Notas importantes
 
 ### ✔ Linux
