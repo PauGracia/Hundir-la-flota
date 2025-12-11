@@ -1,35 +1,21 @@
-Aquí tienes una versión actualizada y mejorada del README, incorporando:
-
-✔️ Que el juego ya es completamente jugable
-✔️ Que el enemigo tiene **IA inteligente** (hunt → target → remate)
-✔️ Que maneja barcos especiales como portaaviones 2×5
-✔️ Que evita casillas prohibidas alrededor de barcos hundidos
-✔️ Mejor redacción y estructura general
-
-Puedes copiarlo tal cual:
-
----
-
 # Hundir la Flota 🎯⚓
 
-**Hundir la Flota** es un juego web totalmente jugable basado en el clásico juego de batalla naval.
-El jugador coloca su flota, elige un almirante enemigo y se enfrenta a una **IA avanzada** que analiza impactos, sigue patrones, remata barcos y evita disparos inútiles.
+**Hundir la Flota** es un juego web completamente funcional basado en el clásico Battleship.
+El jugador coloca su flota, elige un almirante enemigo y se enfrenta a una **IA avanzada** que analiza impactos, sigue patrones inteligentes y remata barcos con precisión estratégica.
 
-El objetivo del proyecto es ofrecer una experiencia fluida, divertida y visualmente atractiva, con estadísticas reales, sistema de perfiles y partidas continuables.
+El proyecto cuenta con perfiles, estadísticas, partidas guardadas, sonido, animaciones y un sistema de IA capaz de resolver barcos complejos como portaaviones **2×5**.
 
 ---
 
 ## 🛠 Tecnologías utilizadas
 
-El proyecto está desarrollado con tecnologías web modernas:
-
-- **HTML5** – Estructura y semántica.
-- **CSS3** – Estilos, diseño y animaciones.
-- **JavaScript (ES6)** – Lógica del juego, IA enemiga, interfaz y validaciones.
-- **PHP** – Backend, sesiones, control de partidas y estadísticas.
-- **MySQL / MariaDB** – Base de datos del usuario, almirantes, partidas y rankings.
-- **Fetch API / AJAX** – Comunicación asíncrona con el servidor.
-- **Google Fonts** – Tipografía temática militar (`Russo One`).
+- **HTML5** – Estructura de la interfaz
+- **CSS3** – Estilos, animaciones y diseño visual
+- **JavaScript (ES6)** – Lógica del juego, eventos y IA
+- **PHP** – Backend, sesiones, controladores
+- **MySQL / MariaDB** – Base de datos
+- **Fetch API (AJAX)** – Comunicaciones asíncronas
+- **Google Fonts** – Tipografía temática militar
 
 ---
 
@@ -38,95 +24,245 @@ El proyecto está desarrollado con tecnologías web modernas:
 ```
 Hundir-la-flota/
 ├─ assets/
-│  ├─ css/        # Estilos y efectos
-│  ├─ js/         # Lógica, IA y scripts interactivos
-│  └─ img/        # Barcos, iconos, avatares y fondos
-├─ php/           # Backend y gestión de datos
-├─ juego/         # Pantallas y archivos del tablero de batalla
-├─ index.php      # Login / Registro
-├─ menuJuego.php  # Menú principal
-└─ README.md      # Documentación del proyecto
+│  ├─ css/             # Estilos del juego
+│  ├─ js/              # Lógica, eventos, IA enemiga
+│  ├─ img/             # Iconos, barcos, fondos, avatares
+│  ├─ music/           # Música temática
+│  ├─ sounds/          # Efectos de sonido
+│  └─ pribate/
+│       └─ bbdd.sql    # Script SQL para crear la base de datos
+│
+├─ php/                # Backend, sesiones, controladores, conexión MySQL
+├─ juego/              # Pantallas del tablero y desarrollo de partida
+│
+├─ index.php           # Login / Registro
+└─ README.md
 ```
 
 ---
 
-## ⚙ Funcionalidades actuales
+## 🎮 Características principales
 
-### 🎮 Juego completamente funcional
-
-- Colocación manual de barcos.
-- Tablero animado y efectos de explosión/agua.
-- Sistema de turnos.
-- Detección automática de **tocado**, **hundido** y **fin de partida**.
-- Guardado y carga de partidas en cualquier momento.
-- Sonidos y avisos del capitán en cada acción.
-
-### 🤖 IA Inteligente del enemigo
-
-La máquina no es aleatoria. Implementa comportamientos reales del Battleship moderno:
-
-- **Modo búsqueda (random):** dispara en casillas estratégicas evitando repetidos.
-- **Modo hunt:** cuando toca un barco, analiza las casillas libres alrededor.
-- **Modo target:** deduce la orientación del barco (horizontal, vertical o especial como portaaviones 2×5).
-- **Remate completo:** no abandona un barco hasta hundirlo.
-- **Zonas prohibidas:** una vez hundido, marca automáticamente todas las casillas adyacentes como imposibles y no dispara allí (como en las reglas originales).
-- Compatible con barcos especiales como portaaviones de **2×5**, destructores verticales, etc.
-- Funciona correctamente incluso con partidas guardadas y tableros parcialmente descubiertos.
-
-### 👤 Sistema de usuario
-
-- Registro e inicio de sesión.
-- Perfil con foto, estadísticas y fecha de registro.
-- Puntuaciones acumuladas.
-- Música persistente entre pantallas.
-
-### 📊 Estadísticas y almirantes
-
-- Se guarda cada victoria del jugador.
-- Los almirantes enemigos también registran sus victorias.
-- Historial de partidas contra cada almirante.
-- Vista de estadísticas en `perfil.php`.
+- ✔️ Juego completamente funcional
+- ✔️ Tablero con animaciones, sonidos e interfaz intuitiva
+- ✔️ IA avanzada: **hunt → target → orientación → remate**
+- ✔️ Compatible con barcos especiales (portaaviones 2×5, etc.)
+- ✔️ Evita casillas prohibidas alrededor de barcos hundidos
+- ✔️ Guardado y carga de partidas
+- ✔️ Sistema de usuario con foto, estadísticas y fecha de registro
+- ✔️ Historial de victorias contra cada almirante
+- ✔️ Música persistente entre pantallas
 
 ---
 
-## 🚀 Estado del proyecto
+## 🚀 Estado actual
 
-Actualmente el juego está **totalmente jugable**, estable y completo en su núcleo:
+Completado:
 
-✔️ Tablero
-✔️ IA enemiga avanzada
-✔️ Gestión de partidas
-✔️ Finalización y guardado de resultados
-✔️ Estadísticas y perfiles
+- ✔️ Núcleo jugable
+- ✔️ IA enemiga avanzada
+- ✔️ Sistema de turnos
+- ✔️ Guardado/carga de partidas
+- ✔️ Estadísticas y perfiles
 
 En desarrollo:
 
-- Ranking global entre jugadores.
-- Niveles de dificultad para los almirantes.
-- Animaciones avanzadas y mejoras visuales.
-- Interfaz responsive más refinada.
-- Nuevos efectos de sonido.
+- Ranking global
+- Dificultades por almirante
+- Mejoras visuales
+- Responsive avanzado
+- Nuevos efectos de sonido
 
 ---
 
-## 🔧 Instalación local
+# 🔧 Configuración de credenciales (archivo `.env`)
 
-1. Clonar el repositorio en un entorno local (XAMPP, WAMP, Laragon…).
-2. Crear la base de datos y tablas según el dump del proyecto.
-3. Configurar la conexión en `php/conexion.php`.
-4. Iniciar sesión en `http://localhost/Hundir-la-flota/index.php`.
-5. Crear usuario y comenzar a jugar.
+El archivo `php/conexion.php` NO debe editarse.
+Cada usuario debe crear su propio archivo con credenciales privadas.
+
+### 1️⃣ Crear el archivo `.env` en la raíz del proyecto:
+
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=tu_contraseña
+DB_NAME=hundir_flota
+```
+
+### 2️⃣ Añadir al `.gitignore`:
+
+```
+.env
+```
+
+### 3️⃣ El sistema ya está preparado para leerlo automáticamente
+
+No es necesario modificar código ni rutas.
 
 ---
 
-## ⚠ Nota
+# 🔧 Instalación en Linux
 
-El proyecto se encuentra en desarrollo activo. Algunas características visuales o de menú pueden cambiar con el tiempo, pero **el núcleo jugable ya es sólido y funcional**.
+### 📌 Requisitos
+
+- PHP
+- MySQL o MariaDB
+- Extensión `mysqli` habilitada
+
+### 📥 Instalación paso a paso
+
+1. Clonar el repositorio:
+
+   ```bash
+   git clone https://github.com/tu-repo/Hundir-la-flota.git
+   ```
+
+2. Entrar al proyecto:
+
+   ```bash
+   cd Hundir-la-flota
+   ```
+
+3. Instalar MySQL si no lo tienes:
+
+   ```bash
+   sudo apt install mysql-server
+   ```
+
+4. Crear la base de datos ejecutando el script:
+
+   ```bash
+   mysql -u tu_usuario -p < assets/pribate/bbdd.sql
+   ```
+
+5. Crear tu archivo `.env` con tus credenciales reales.
+
+6. Levantar el servidor PHP:
+
+   ```bash
+   php -S localhost:8000
+   ```
+
+7. Abrir en el navegador:
+
+   ```
+   http://localhost:8000
+   ```
+
+---
+
+# 🔧 Instalación en Windows
+
+## Método 1 — PHP nativo (sin XAMPP)
+
+1. Instalar PHP:
+   [https://windows.php.net/download](https://windows.php.net/download)
+
+2. Instalar MySQL:
+   [https://dev.mysql.com/downloads/installer/](https://dev.mysql.com/downloads/installer/)
+
+3. Ejecutar el script SQL:
+
+   ```cmd
+   mysql -u root -p < assets\pribate\bbdd.sql
+   ```
+
+4. Crear el archivo `.env`.
+
+5. Ejecutar servidor:
+
+   ```cmd
+   php -S localhost:8000
+   ```
+
+6. Navegar a:
+
+   ```
+   http://localhost:8000
+   ```
+
+Perfecto, lo ajusto.
+Aquí tienes **solo la parte corregida**, tal como me pediste:
+
+---
+
+## Método 2 — Usando XAMPP (recomendado)
+
+1. Descargar XAMPP:
+   [https://www.apachefriends.org/es/index.html](https://www.apachefriends.org/es/index.html)
+
+2. Instalarlo.
+
+3. **Clonar o descargar el repositorio directamente dentro del directorio `htdocs`:**
+
+   ```
+   C:\xampp\htdocs\Hundir-la-flota\
+   ```
+
+   Ejemplo usando Git Bash o PowerShell:
+
+   ```cmd
+   cd C:\xampp\htdocs
+   git clone https://github.com/tu-repo/Hundir-la-flota.git
+   ```
+
+4. Abrir el panel de XAMPP y arrancar **Apache** y **MySQL**.
+
+5. Crear la base de datos ejecutando el SQL:
+
+   **Opción A — Por CMD**
+
+   ```cmd
+   cd C:\xampp\mysql\bin
+   mysql -u root < C:\xampp\htdocs\Hundir-la-flota\assets\pribate\bbdd.sql
+   ```
+
+   **Opción B — Por phpMyAdmin**
+
+   - Abrir `http://localhost/phpmyadmin/`
+   - Crear nueva base de datos
+   - Ir a **Importar → seleccionar `bbdd.sql`**
+
+6. Crear tu archivo `.env` en la raíz del proyecto:
+
+   ```
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASS=
+   DB_NAME=hundir_flota
+   ```
+
+7. Acceder al juego:
+
+   ```
+   http://localhost/Hundir-la-flota/
+   ```
+
+---
+
+# ⚠ Notas importantes
+
+### ✔ Linux
+
+- Las rutas distinguen mayúsculas/minúsculas.
+- Usa siempre `/` en rutas.
+
+### ✔ Windows
+
+- En XAMPP se puede usar MySQL local sin problemas.
+- El proyecto **debe estar dentro de `htdocs`** para funcionar con Apache.
+
+### ✔ En ambos sistemas
+
+- **NO modifiques `php/conexion.php`.**
+- **Crea tu `.env` con tus datos reales.**
+- **Instala MySQL** y usa el script SQL incluido en el proyecto.
 
 ---
 
 ## 📜 Licencia
 
-Proyecto de uso personal y educativo. Se permite su uso libre con fines formativos.
+Proyecto para uso personal y educativo.
+Se permite su uso libre con fines formativos.
 
 ---
