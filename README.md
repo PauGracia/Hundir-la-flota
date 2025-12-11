@@ -1,6 +1,8 @@
 # Hundir la Flota 🎯⚓
 
-<img src="assets/imgReadme/index.png" alt="indice Hundir la Flota" width="400">
+<div align="center">
+  <img src="assets/imgReadme/index.png" alt="indice Hundir la Flota" width="400">
+</div>
 
 **Hundir la Flota** es un juego web completamente funcional basado en el clásico Battleship.
 El jugador coloca su flota, elige un almirante enemigo y se enfrenta a una **IA avanzada** que analiza impactos, sigue patrones inteligentes y remata barcos con precisión estratégica.
@@ -57,7 +59,9 @@ Hundir-la-flota/
 
 ---
 
-<img src="assets/imgReadme/menu.png" alt="Menu de Hundir la Flota" width="400">
+<div align="center">
+  <img src="assets/imgReadme/menu.png" alt="Menu de Hundir la Flota" width="500">
+</div>
 
 ## 🚀 Estado actual
 
@@ -79,7 +83,9 @@ En desarrollo:
 
 ---
 
-<img src="assets/imgReadme/batalla.png" alt="batalla de Hundir la Flota" width="400">
+<div align="center">
+  <img src="assets/imgReadme/batalla.png" alt="batalla de Hundir la Flota" width="400">
+</div>
 
 # 🔧 Configuración de credenciales (archivo `.env`)
 
