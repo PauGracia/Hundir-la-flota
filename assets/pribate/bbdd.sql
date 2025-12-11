@@ -72,3 +72,11 @@ CREATE TABLE IF NOT EXISTS disparos (
     KEY idPartida_idx (idPartida),
     CONSTRAINT fk_disparos_partidas FOREIGN KEY (idPartida) REFERENCES partidas(idPartida)
 );
+
+-- Inserts de los Almirantes con sus avateres
+INSERT INTO almirantes (nombreAlmirante, imagenAlmirante, victorias) VALUES
+('Andrew Browne Cunningham', 'Almirante_Cunningham.jpg', 2),
+('Karl Dönitz', 'Almirante_Donitz.jpg', 1),
+('Chester W. Nimitz', 'Almirante_Nimitz.jpg', 3),
+('Isoroku Yamamoto', 'Almirante_Yamamoto.jpg', 1);
+
